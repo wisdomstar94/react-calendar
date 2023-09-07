@@ -1,0 +1,22 @@
+.date-picker-contaienr {
+  display: none;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: center;
+  position: fixed;
+}
+.date-picker-contaienr.show {
+  display: flex;
+}
+.date-picker-contaienr.full {
+  background-color: rgba(0, 0, 0, 0.7);
+}
+
+
+.date-picker-contaienr .date-picker {
+  width: 100%;
+}
+.date-picker-contaienr.full .date-picker {
+  width: 360px;
+  max-width: calc(100% - 24px);
+}
