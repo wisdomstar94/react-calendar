@@ -68,10 +68,12 @@ export function useCalendar() {
 
     return {
       dayItems,
-      prevMonth: DateTime.fromJSDate(targetDate).minus({ month: 1 }).startOf('month').toJSDate(),
-      nextMonth: DateTime.fromJSDate(targetDate).plus({ month: 1 }).startOf('month').toJSDate(),
-      prevYear: DateTime.fromJSDate(targetDate).minus({ year: 1 }).toJSDate(),
-      nextYear: DateTime.fromJSDate(targetDate).plus({ year: 1 }).toJSDate(),
+      prevMonthDate: DateTime.fromJSDate(targetDate).minus({ month: 1 }).startOf('month').toJSDate(),
+      nextMonthDate: DateTime.fromJSDate(targetDate).plus({ month: 1 }).startOf('month').toJSDate(),
+      prevYearDate: DateTime.fromJSDate(targetDate).minus({ year: 1 }).toJSDate(),
+      nextYearDate: DateTime.fromJSDate(targetDate).plus({ year: 1 }).toJSDate(),
+      currentMonth: targetDate.getMonth() + 1,
+      currentYear: targetDate.getFullYear(),
     };
   }
 

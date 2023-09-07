@@ -33,6 +33,9 @@ export declare namespace IDatePicker {
     isShow?: boolean;
     setIsShow?: Dispatch<SetStateAction<boolean | undefined>>;
 
+    onSelect?: (date: Date | undefined, outputString: string) => void;
+    outputFormat?: string;
+      
     width?: number;
   }
 }

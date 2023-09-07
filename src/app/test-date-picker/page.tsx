@@ -1,17 +1,26 @@
 "use client"
 import { DatePicker } from "@/components/date-picker/date-picker.component";
-import { useCalendar } from "@/hooks/use-calendar/use-calendar.hook";
-import { useEffect, useRef, useState } from "react";
+import { useRef, useState } from "react";
 
 export default function Page() {
   const inputRef = useRef<HTMLInputElement>(null);
+  const [value, setValue] = useState<string>('');
   const [isShow, setIsShow] = useState<boolean>();
-  const [currentDate, setCurrentDate] = useState<Date>();
+  const [selectedDate, setSelectedDate] = useState<Date>();
 
   return (
     <div>
       <div style={{ paddingLeft: '1600px', paddingRight: '1600px', paddingTop: '1600px', paddingBottom: '1600px' }}>
-        <input ref={inputRef} type="text" className="border border-slate-700 box-border" />
+        <input
+          ref={inputRef}
+          style={{ width: '260px' }}
+          value={value}
+          onChange={e => {
+            const _value = e.target.value;
+            setValue(_value);
+          }}
+          type="text"
+          className="border border-slate-700 box-border" />
       </div>
       
       <DatePicker 
@@ -21,6 +30,11 @@ export default function Page() {
         }}
         isShow={isShow}
         setIsShow={setIsShow}
+        selectedDateObj={selectedDate}
+        setSelectedDateObj={setSelectedDate}
+        onSelect={(date, outputString) => {
+          setValue(outputString);
+        }}
         // width={360}
         />
     </div>

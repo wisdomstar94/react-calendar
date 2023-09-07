@@ -2,6 +2,9 @@ import { CSSProperties, ReactNode, useCallback, useEffect, useMemo, useRef, useS
 import { IDatePicker } from "./date-picker.interface";
 import styles from './date-picker.module.css';
 import { createPortal } from "react-dom";
+import { useCalendar } from "../../..";
+import { IUseCalendar } from "@/hooks/use-calendar/use-calendar.interface";
+import { DateTime } from "luxon";
 
 const portalElementId = `date-picker-root-portal`;
 const spacing = 6;
@@ -16,8 +19,14 @@ export function DatePicker(props: IDatePicker.Props) {
     isShow,
     setIsShow,
 
+    onSelect,
     width,
   } = props;
+  const outputFormat = useMemo(() => props.outputFormat ?? `yyyy-MM-dd`, [props.outputFormat]);
+
+  const [currentCalendarInfo, setCurrentCalendarInfo] = useState<IUseCalendar.CalendarInfo>();
+  const calendar = useCalendar();
+
   const datePickerContainerRef = useRef<HTMLDivElement>(null);
   const datePickerRef = useRef<HTMLDivElement>(null);
   const [resizeOrscrollInfo, setResizeOrscrollInfo] = useState<IDatePicker.ResizeOrScrollInfo>();
@@ -88,8 +97,56 @@ export function DatePicker(props: IDatePicker.Props) {
     setResizeOrscrollInfo({ date: new Date() });
     disposeSizeAndPosition();
   });
+  
   const inputFocusCallback = useRef(() => {
     if (typeof setIsShow === 'function') setIsShow(true);
+  });
+
+  const windowClickCallback = useRef((event: MouseEvent | TouchEvent) => {
+    console.log('@event', event);
+    let clientX = 0;
+    let clientY = 0;
+    if (event instanceof MouseEvent) {
+      clientX = event.clientX;
+      clientY = event.clientY;
+    } else if (event instanceof TouchEvent) {
+      clientX = event.touches[0].clientX;
+      clientY = event.touches[0].clientY;
+    }
+
+    const pointElement = document.elementFromPoint(clientX, clientY);
+
+    let currentElement = pointElement;
+    let isThisExist = false;
+    for (let i = 0; i < 20; i++) {
+      if (currentElement === datePickerContainerRef.current || currentElement === getInputElement()) {
+        isThisExist = true;
+        break;
+      }
+      currentElement = currentElement?.parentElement ?? null;
+    }
+
+    if (!isThisExist) {
+      if (typeof setIsShow === 'function') setIsShow(prev => false);
+    }
+  });
+
+  const inputOnChangeCallback = useRef((event: Event) => {
+    // console.log('@inputOnChangeCallback', event);
+    const value = (event.target as any)?.value;
+    if (typeof value !== 'string') return;
+    if (value.length < 10) return;
+    // console.log('@value', value);
+    const luxonObj = DateTime.fromSQL(value);
+    if (luxonObj.isValid) {
+      if (typeof setSelectedDateObj === 'function') setSelectedDateObj(luxonObj.toJSDate());
+      if (typeof onSelect === 'function') onSelect(luxonObj.toJSDate(), luxonObj.toFormat(outputFormat));
+    } else {
+      if (typeof setSelectedDateObj === 'function') setSelectedDateObj(undefined);
+      if (typeof onSelect === 'function') onSelect(undefined, '');
+    }
+    // console.log('@isValid', luxonObj.isValid);
+    // console.log('@toJSDate', luxonObj.toJSDate());
   });
 
   if (typeof document !== 'undefined' && isExistPortal === false) {
@@ -200,10 +257,28 @@ export function DatePicker(props: IDatePicker.Props) {
   }, []);
 
   useEffect(() => {
+    const callback = windowClickCallback.current;
+    if (typeof window !== 'undefined') {
+      window.removeEventListener('click', callback);
+      window.addEventListener('click', callback);
+    }
+    return () => {
+      if (typeof window !== 'undefined') {
+        window.removeEventListener('click', callback);
+      } 
+    };
+  }, []); 
+
+  useEffect(() => {
     if (isShow === true) {
       const callback = resizeCallback.current;
       callback();
+
+      if (selectedDateObj !== undefined) {
+        setCurrentCalendarInfo(calendar.getDayCalendarInfo(selectedDateObj, [selectedDateObj]));
+      }
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isShow]);
 
   useEffect(() => {
@@ -212,9 +287,26 @@ export function DatePicker(props: IDatePicker.Props) {
     const inputElement = getInputElement();
     inputElement?.removeEventListener('focus', callback);
     inputElement?.addEventListener('focus', callback);
+    if (inputElement !== null) {
+      inputElement.maxLength = 19;
+    }
 
     return () => {
       inputElement?.removeEventListener('focus', callback);
+    };
+  }, [getInputElement]);
+
+  useEffect(() => {
+    const callback = inputOnChangeCallback.current;
+
+    const inputElement = getInputElement();
+    inputElement?.removeEventListener('keyup', callback);
+    inputElement?.addEventListener('keyup', callback);
+
+    console.log('@@.inputElement', inputElement);
+
+    return () => {
+      inputElement?.removeEventListener('keyup', callback);
     };
   }, [getInputElement]);
 
@@ -232,6 +324,15 @@ export function DatePicker(props: IDatePicker.Props) {
     }
   }, [isExistPortal]);
 
+  useEffect(() => {
+    if (selectedDateObj === undefined) {
+      setCurrentCalendarInfo(calendar.getDayCalendarInfo(new Date()));
+    } else {
+      setCurrentCalendarInfo(calendar.getDayCalendarInfo(selectedDateObj, [selectedDateObj]));
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [selectedDateObj]);
+
   return (
     <>
       {
@@ -244,15 +345,91 @@ export function DatePicker(props: IDatePicker.Props) {
             <div 
               ref={datePickerRef}
               className={[
-              "relative bg-yellow-400",
-              styles['date-picker'],
-            ].join(' ')}>
-              gg
+                styles['date-picker'],
+              ].join(' ')}>
+              <div className={styles['top-row']}>
+                <div className={styles['move-to-month-button-icon-button']}
+                  onClick={() => {
+                    if (currentCalendarInfo?.prevMonthDate !== undefined) {
+                      setCurrentCalendarInfo(calendar.getDayCalendarInfo(currentCalendarInfo?.prevMonthDate))
+                    }
+                  }}>
+                  <svg xmlns="http://www.w3.org/2000/svg" className={styles['move-to-month-button-icon']} width="20" height="20" viewBox="0 0 24 24" strokeWidth="2" stroke="currentColor" fill="none" strokeLinecap="round" strokeLinejoin="round">
+                    <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+                    <path d="M15 6l-6 6l6 6"></path>
+                  </svg>
+                </div>
+                <div className={styles['year-month-area']}>
+                  { currentCalendarInfo?.currentYear }.{ currentCalendarInfo?.currentMonth.toString().padStart(2, '0') }
+                </div>
+                <div className={styles['move-to-month-button-icon-button']}
+                  onClick={() => {
+                    if (currentCalendarInfo?.nextMonthDate !== undefined) {
+                      setCurrentCalendarInfo(calendar.getDayCalendarInfo(currentCalendarInfo?.nextMonthDate))
+                    }
+                  }}>
+                  <svg xmlns="http://www.w3.org/2000/svg" className={styles['move-to-month-button-icon']} width="20" height="20" viewBox="0 0 24 24" strokeWidth="2" stroke="currentColor" fill="none" strokeLinecap="round" strokeLinejoin="round">
+                    <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+                    <path d="M9 6l6 6l-6 6"></path>
+                  </svg>
+                </div>
+              </div>
+              <div className={styles['day-row']}>
+                <div>
+                  일
+                </div>
+                <div>
+                  월
+                </div>
+                <div>
+                  화
+                </div>
+                <div>
+                  수
+                </div>
+                <div>
+                  목
+                </div>
+                <div>
+                  금
+                </div>
+                <div>
+                  토
+                </div>
+              </div>
+              <div className={styles['dates-area']}>
+                {
+                  currentCalendarInfo?.dayItems.map(item => {
+                    return (
+                      <div key={item.yyyymmdd}
+                        className={[
+                          item.isSelected ? styles['selected'] : '',
+                          !item.isIncludeCurrentMonth ? styles['prev-or-next-month-date'] : '',
+                        ].join(' ')}
+                        onClick={() => {
+                          if (typeof setIsShow === 'function') setIsShow(prev => false);
+                          if (typeof setSelectedDateObj === 'function') setSelectedDateObj(item.date);
+                          if (typeof onSelect === 'function') onSelect(item.date, DateTime.fromJSDate(item.date).toFormat(outputFormat));
+                        }}>
+                        { item.dayInfo.day }
+                        {
+                          item.isToday ? 
+                          <>
+                            <span className={styles['today-symbol']}></span>
+                          </>
+                          : null
+                        }
+                      </div>
+                    );
+                  })
+                }
+              </div>
             </div>
           </div>
         </Portal>
         : null
       }      
+      <div className=" grid-col"></div>
     </>
   );
 }

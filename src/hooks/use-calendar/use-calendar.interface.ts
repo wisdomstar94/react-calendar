@@ -44,9 +44,11 @@ export declare namespace IUseCalendar {
 
   export interface CalendarInfo {
     dayItems: DayItem[];
-    prevMonth: Date;
-    nextMonth: Date;
-    prevYear: Date;
-    nextYear: Date;
+    prevMonthDate: Date;
+    nextMonthDate: Date;
+    prevYearDate: Date;
+    nextYearDate: Date;
+    currentMonth: number;
+    currentYear: number;
   }
 }

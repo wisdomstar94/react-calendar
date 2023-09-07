@@ -4,6 +4,7 @@
   justify-content: center;
   align-items: center;
   position: fixed;
+  user-select: none;
 }
 .date-picker-contaienr.show {
   display: flex;
@@ -15,8 +16,115 @@
 
 .date-picker-contaienr .date-picker {
   width: 100%;
+  position: relative;
+  border: 1px solid #ccc;
 }
 .date-picker-contaienr.full .date-picker {
   width: 360px;
   max-width: calc(100% - 24px);
+  background-color: #fff;
 }
+
+
+.date-picker-contaienr .date-picker .top-row {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  padding: 4px 6px;
+  position: relative;
+  background-color: #eee;
+  font-size: 14px;
+  color: #222;
+  align-items: center;
+  border-bottom: 1px solid #ccc;
+}
+.date-picker-contaienr .date-picker .top-row .year-month-area {
+  margin: 0 6px;
+}
+
+.move-to-month-button-icon-button {
+  cursor: pointer;
+  padding: 0 6px;
+}
+.move-to-month-button-icon-button .move-to-month-button-icon {
+  stroke: #999;
+}
+.move-to-month-button-icon-button:hover .move-to-month-button-icon {
+  stroke: #333;
+}
+
+.date-picker-contaienr .date-picker .day-row {
+  display: grid;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+  font-size: 12px;
+  background-color: #eee;
+  border-bottom: 1px solid #ccc;
+}
+.date-picker-contaienr .date-picker .day-row > div {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  padding: 4px 0;
+}
+.date-picker-contaienr .date-picker .day-row > div:first-child {
+  color: #f00;
+}
+.date-picker-contaienr .date-picker .day-row > div:last-child {
+  color: rgb(38, 138, 237);
+}
+
+.date-picker-contaienr .date-picker .dates-area {
+  display: grid;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+  font-size: 12px;
+}
+.date-picker-contaienr .date-picker .dates-area > div {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  padding: 6px 0;
+  cursor: pointer;
+  position: relative;
+}
+.date-picker-contaienr .date-picker .dates-area > div.selected {
+  background-color: #fde047;
+}
+.date-picker-contaienr .date-picker .dates-area > div:nth-child(7n + 1) {
+  color: #f00;
+}
+.date-picker-contaienr .date-picker .dates-area > div:nth-child(7n) {
+  color: rgb(38, 138, 237);
+}
+
+.date-picker-contaienr .date-picker .dates-area > div.prev-or-next-month-date {
+  color: #bbb;
+}
+.date-picker-contaienr .date-picker .dates-area > div:nth-child(7n + 1).prev-or-next-month-date {
+  color: rgb(238, 153, 153);
+}
+.date-picker-contaienr .date-picker .dates-area > div:nth-child(7n).prev-or-next-month-date {
+  color: rgb(173, 199, 226);
+}
+
+.date-picker-contaienr .date-picker .dates-area > div:hover {
+  background-color: #eee;
+}
+.date-picker-contaienr .date-picker .dates-area > div.selected:hover {
+  background-color: #f2d023;
+}
+
+.date-picker-contaienr .date-picker .dates-area > div .today-symbol {
+  width: 6px;
+  height: 6px;
+  border-radius: 100px;
+  font-size: 8px;
+  background-color: #18a481;
+  position: absolute;
+  right: 5px;
+  bottom: 5px;
+}
+.date-picker-contaienr .date-picker .dates-area > div.prev-or-next-month-date .today-symbol {
+  background-color: #78e9cd;
+} 
