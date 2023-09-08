@@ -233,15 +233,55 @@ export function DatePicker(props: IDatePicker.Props) {
     if (typeof value !== 'string') { prevValue.current = value; return; }
     if (prevValue.current === value) return;
 
-    if (pickType === 'time') {
-      value = `2023-09-09 ` + value;
+    const getConvertInfo = (_value: string) => {
+      let isValid: boolean = false;
+      let date: Date | undefined = undefined;
+
+      let myValue = _value;
+      if (pickType === 'time') {
+        myValue = `2023-09-09 ` + myValue;
+      }
+      const luxonObj = DateTime.fromSQL(myValue);
+      isValid = luxonObj.isValid;
+      if (isValid) {
+        date = luxonObj.toJSDate();
+      }
+
+      return {
+        isValid,
+        date,
+      };  
+    };
+
+    if (rangeType === 'single') {
+      const convertInfo = getConvertInfo(value);
+      if (convertInfo.isValid) {
+        setSelectedDateProxy(convertInfo.date);
+        // if (typeof onSelect === 'function') onSelect(luxonObj.toJSDate(), luxonObj.toFormat(outputFormat));
+      } 
+      prevValue.current = value;
     }
-    const luxonObj = DateTime.fromSQL(value);
-    if (luxonObj.isValid) {
-      setSelectedDateProxy(luxonObj.toJSDate());
-      // if (typeof onSelect === 'function') onSelect(luxonObj.toJSDate(), luxonObj.toFormat(outputFormat));
-    } 
-    prevValue.current = value;
+    
+    const disposeRange = () => {
+      const valueSplit = value.split('~');
+      if (valueSplit.length === 2) {
+        const startValue = valueSplit[0].trim();
+        const endValue = valueSplit[1].trim();
+
+        const startValueConvertInfo = getConvertInfo(startValue);
+        const endValueConvertInfo = getConvertInfo(endValue);
+
+        setSelectedRangeDateProxy({
+          start: startValueConvertInfo.date,
+          end: endValueConvertInfo.date,
+        });
+      }
+    };
+
+    if (rangeType === 'range') {
+      disposeRange();
+      prevValue.current = value;
+    }
   });
 
   const finallySelectedDateInfo = useMemo<IUseCalendar.SelectedDate>(() => {
@@ -475,22 +515,6 @@ export function DatePicker(props: IDatePicker.Props) {
       }
       return;
     }
-
-
-    // if (isShow === true) {
-    //   const callback = resizeCallback.current;
-    //   callback();
-
-    //   if (selectedRangeDate !== undefined) {
-    //     setCurrentCalendarInfo(calendar.getDayCalendarInfo(selectedRangeDate.start ?? new Date(), { start: selectedRangeDate.start, end: selectedRangeDate.end }));
-    //   } else if (selectedDate !== undefined) {
-    //     setCurrentCalendarInfo(calendar.getDayCalendarInfo(selectedDate, selectedDate));
-    //   } else {
-    //     setCurrentCalendarInfo(calendar.getDayCalendarInfo(new Date()));
-    //   }
-    // } else {
-    //   if (typeof onValueChange === 'function' && selectedDate !== undefined) onValueChange(DateTime.fromJSDate(selectedDate).toFormat(outputFormat));
-    // }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isShow, rangeType]);
 
