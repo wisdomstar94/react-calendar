@@ -62,6 +62,10 @@ export default function Page() {
         setIsShow={setIsShow}
         selectedDate={selectedDate}
         setSelectedDate={setSelectedDate}
+        allowSelectDates={{
+          startDate: new Date('2023-09-01'),
+          endDate: new Date('2023-09-08'),
+        }}
         // outputFormat="yyyy-MM-dd"
         onValueChange={(value) => {
           setValue(value);

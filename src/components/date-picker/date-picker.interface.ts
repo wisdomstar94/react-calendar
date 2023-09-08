@@ -42,6 +42,10 @@ export declare namespace IDatePicker {
     onValueChange: (value: string) => void;
     outputFormat?: string;
       
+    allowSelectDates?: {
+      startDate?: Date;
+      endDate?: Date;
+    };
     width?: number;
   }
 }
