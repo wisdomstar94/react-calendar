@@ -380,6 +380,13 @@ export function DatePicker(props: IDatePicker.Props) {
             ref={datePickerContainerRef}
             className={datePickerContainerClassName}
             style={getDatePickerContainerStyle()}>
+            <div
+              className={styles['bg']}
+              onClick={() => {
+                setIsShow(prev => false);
+              }}>
+
+            </div>
             <div 
               ref={datePickerRef}
               className={[

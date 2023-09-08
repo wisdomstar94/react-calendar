@@ -27,6 +27,15 @@ export default function Page() {
           }}
           type="text"
           className="border border-slate-700 box-border" />
+        <div className="w-full relative">
+          <button
+            className="w-[200px]"
+            onClick={() => {
+              setSelectedDate(new Date('2023-06-06 06:11:11'))
+            }}>
+            프로그래밍 방식으로 바꾸기
+          </button>
+        </div>
         <br />
         <div>
           <input
@@ -48,7 +57,7 @@ export default function Page() {
           isMatchInputWidth: true,
         }}
         pickTypes={['date', 'time']}
-        isTimeAllowSecondPick={true}
+        // isTimeAllowSecondPick={true}
         isShow={isShow}
         setIsShow={setIsShow}
         selectedDate={selectedDate}
