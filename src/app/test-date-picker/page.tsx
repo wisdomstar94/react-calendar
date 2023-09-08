@@ -1,5 +1,6 @@
 "use client"
 import { DatePicker } from "@/components/date-picker/date-picker.component";
+import { IDatePicker } from "@/components/date-picker/date-picker.interface";
 import { useEffect, useRef, useState } from "react";
 
 export default function Page() {
@@ -14,16 +15,26 @@ export default function Page() {
   const [isShow2, setIsShow2] = useState<boolean>(false);
   const [selectedDate2, setSelectedDate2] = useState<Date | undefined>(new Date());
 
+  const [selectedRangeDate, setSelectedRangeDate] = useState<IDatePicker.RangeDate>();
+
+
   useEffect(() => {
     console.log('@@selectedDate', selectedDate);
   }, [selectedDate]);
+
+  useEffect(() => {
+    setSelectedRangeDate({
+      start: new Date('2023-09-04'),
+      end: new Date('2023-09-13'),
+    });
+  }, []);
 
   return (
     <div>
       <div style={{ paddingLeft: '1600px', paddingRight: '1600px', paddingTop: '1600px', paddingBottom: '1600px' }}>
         <input
           ref={inputRef}
-          style={{ width: '260px' }}
+          style={{ width: '320px' }}
           value={value}
           onChange={e => {
             const _value = e.target.value;
@@ -61,11 +72,14 @@ export default function Page() {
           isMatchInputWidth: true,
         }}
         pickType="datetime"
-        timeType="hour"
+        timeType="hour-minute-second"
+        rangeType="range"
         isShow={isShow}
         setIsShow={setIsShow}
         selectedDate={selectedDate}
         setSelectedDate={setSelectedDate}
+        selectedRangeDate={selectedRangeDate}
+        setSelectedRangeDate={setSelectedRangeDate}
         allowSelectDates={{
           startDate: new Date('2023-03-03'),
           endDate: new Date('2023-10-08'),

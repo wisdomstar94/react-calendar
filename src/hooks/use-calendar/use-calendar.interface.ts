@@ -42,6 +42,13 @@ export declare namespace IUseCalendar {
     isIncludeCurrentMonth: boolean;
   }
 
+  export interface RangeSelectedDate {
+    start: Date | undefined;
+    end: Date | undefined;
+  }
+
+  export type SelectedDate = Date | RangeSelectedDate | undefined;
+
   export interface CalendarInfo {
     dayItems: DayItem[];
     prevMonthDate: Date;

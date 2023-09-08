@@ -7,17 +7,37 @@ export function useCalendar() {
     return weekDay;
   }
 
-  function getDayCalendarInfo(targetDate: Date, selectedDates?: Date[]): IUseCalendar.CalendarInfo {
+  function getDayCalendarInfo(targetDate: Date, selectedDate?: IUseCalendar.SelectedDate): IUseCalendar.CalendarInfo {
     const startOfWeekDay = DateTime.fromJSDate(targetDate).startOf('month').get('weekday');
     const startOfWeekDayConvert = convertWeekDay(startOfWeekDay);
 
     const dayItems: IUseCalendar.DayItem[] = Array.from({ length: 42 });
     const todayYYYYMMDD = DateTime.now().toFormat('yyyy-MM-dd');
-    const selectedDatesYYYYMMDDs = selectedDates?.map((x) => DateTime.fromJSDate(x).toFormat('yyyy-MM-dd'));
+    // const selectedDatesYYYYMMDDs = selectedDates?.map((x) => DateTime.fromJSDate(x).toFormat('yyyy-MM-dd'));
 
     let count = 0;
     const startDate = DateTime.fromJSDate(targetDate).startOf('month');
     
+    const isSelected = (luxonDate: DateTime) => {
+      if (selectedDate === undefined) return false;
+      if (selectedDate instanceof Date) {
+        return luxonDate.toFormat('yyyy-MM-dd') === DateTime.fromJSDate(selectedDate).toFormat('yyyy-MM-dd');
+      } else {
+        const startDate = selectedDate.start;
+        const endDate = selectedDate.end;
+        if (startDate !== undefined && endDate === undefined) {
+          return luxonDate.toFormat('yyyy-MM-dd') === DateTime.fromJSDate(startDate).toFormat('yyyy-MM-dd');
+        } else if (startDate === undefined && endDate !== undefined) {
+          return luxonDate.toFormat('yyyy-MM-dd') === DateTime.fromJSDate(endDate).toFormat('yyyy-MM-dd');
+        } else if (startDate !== undefined && endDate !== undefined) {
+          const startDateLuxonObj = DateTime.fromJSDate(startDate).set({ hour: 0, minute: 0, second: 0, millisecond: 0 });
+          const endDateLuxonObj = DateTime.fromJSDate(endDate).set({ hour: 23, minute: 59, second: 59, millisecond: 999 });
+          return (luxonDate.toJSDate().getTime() >= startDateLuxonObj.toJSDate().getTime() && luxonDate.toJSDate().getTime() <= endDateLuxonObj.toJSDate().getTime());
+        }
+      }
+      return false;
+    };
+
     count = 1;
     for (let i = startOfWeekDayConvert - 1; i >= 0; i--) {
       const luxonDate = startDate.minus({ day: count });
@@ -32,7 +52,7 @@ export function useCalendar() {
           weekdayLong: luxonDate.get('weekdayLong').toString(),
         },
         isToday: todayYYYYMMDD === luxonDate.toFormat('yyyy-MM-dd'),
-        isSelected: selectedDatesYYYYMMDDs === undefined || selectedDatesYYYYMMDDs.length === 0 ? false : selectedDatesYYYYMMDDs.includes(luxonDate.toFormat('yyyy-MM-dd')),
+        isSelected: isSelected(luxonDate),
         isWeekend: [6, 7].includes(luxonDate.get('weekday')),
         yyyymmdd: luxonDate.toFormat('yyyy-MM-dd'),
         isIncludeCurrentMonth: luxonDate.toFormat('yyyy-MM') === DateTime.fromJSDate(targetDate).toFormat('yyyy-MM'),
@@ -56,7 +76,7 @@ export function useCalendar() {
           weekdayLong: luxonDate.get('weekdayLong').toString(),
         },
         isToday: todayYYYYMMDD === luxonDate.toFormat('yyyy-MM-dd'),
-        isSelected: selectedDatesYYYYMMDDs === undefined || selectedDatesYYYYMMDDs.length === 0 ? false : selectedDatesYYYYMMDDs.includes(luxonDate.toFormat('yyyy-MM-dd')),
+        isSelected: isSelected(luxonDate),
         isWeekend: [6, 7].includes(luxonDate.get('weekday')),
         yyyymmdd: luxonDate.toFormat('yyyy-MM-dd'),
         isIncludeCurrentMonth: luxonDate.toFormat('yyyy-MM') === DateTime.fromJSDate(targetDate).toFormat('yyyy-MM'),

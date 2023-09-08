@@ -4,6 +4,8 @@ export declare namespace IDatePicker {
   export type VerticalDirection = 'top' | 'bottom';
   export type HorizontalDirection = 'left' | 'right';
 
+  export type RangeType = 'range' | 'single';
+
   export type PickType = 
     'month' | 
     'time' | 
@@ -60,20 +62,30 @@ export declare namespace IDatePicker {
     date: Date;
   }
 
+  export interface RangeDate {
+    start: Date | undefined;
+    end: Date | undefined;
+  }
+
   export interface Props {
     inputSelector?: InputSelector;
     pickType: PickType;
     // isTimeAllowSecondPick?: boolean;
     timeType?: TimeType;
+    rangeType?: RangeType;
 
-    selectedDate: Date | undefined;
-    setSelectedDate: Dispatch<SetStateAction<Date | undefined>>;
+    selectedDate?: Date | undefined;
+    setSelectedDate?: Dispatch<SetStateAction<Date | undefined>>;
+
+    selectedRangeDate?: RangeDate;
+    setSelectedRangeDate?: Dispatch<SetStateAction<RangeDate | undefined>>;
 
     isShow: boolean;
     setIsShow: Dispatch<SetStateAction<boolean>>;
 
     // onSelect?: (date: Date | undefined, outputString: string) => void;
-    onValueChange: (value: string) => void;
+    onValueChange?: (value: string) => void;
+    
     outputFormat?: string;
       
     allowSelectDates?: {
@@ -81,5 +93,29 @@ export declare namespace IDatePicker {
       endDate?: Date;
     };
     width?: number;
+  }
+
+  export type RangeItemContainerLayoutType =
+    'month' | 
+    'date' | 
+    'datetime-hour' | 
+    'datetime-hour-minute' | 
+    'datetime-hour-minute-second' | 
+    'time-hour' | 
+    'time-hour-minute' | 
+    'time-hour-minute-second' | 
+    ''
+  ;
+
+  export type RangeDateControlTarget = 'start' | 'end';
+
+  export interface RangeItemContainerProps {
+    target: RangeDateControlTarget;
+    pickType: PickType;
+    timeType: TimeType | undefined;
+    isSelected: boolean;
+    onClick: () => void;
+    selectedRangeDate: undefined | RangeDate;
+    setSelectedRangeDateProxy: (rangeDate: IDatePicker.RangeDate | undefined) => void;
   }
 }
