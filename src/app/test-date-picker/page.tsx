@@ -74,6 +74,7 @@ export default function Page() {
         pickType="datetime"
         timeType="hour"
         rangeType="range"
+        rangeDivideString="➡"
         isShow={isShow}
         setIsShow={setIsShow}
         selectedDate={selectedDate}

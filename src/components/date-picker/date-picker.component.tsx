@@ -30,6 +30,7 @@ export function DatePicker(props: IDatePicker.Props) {
   } = props;
   // const isTimeAllowSecondPick = useMemo(() => props.isTimeAllowSecondPick ?? false, [props.isTimeAllowSecondPick]);
   const rangeType = useMemo<IDatePicker.RangeType>(() => props.rangeType ?? 'single', [props.rangeType]);
+  const rangeDivideString = useMemo(() => props.rangeDivideString ?? '~', [props.rangeDivideString]);
   const [rangeDateControlTarget, setRangeDateControlTarget] = useState<IDatePicker.RangeDateControlTarget>('start');
     
   const getSystemOutputFormat = useCallback(() => {
@@ -295,15 +296,15 @@ export function DatePicker(props: IDatePicker.Props) {
 
     let finallyValue: string = '';
     if (rangeDate.start !== undefined && rangeDate.end !== undefined) {
-      finallyValue = `${DateTime.fromJSDate(rangeDate.start).toFormat(outputFormat)} ~ ${DateTime.fromJSDate(rangeDate.end).toFormat(outputFormat)}`;
+      finallyValue = `${DateTime.fromJSDate(rangeDate.start).toFormat(outputFormat)} ${rangeDivideString} ${DateTime.fromJSDate(rangeDate.end).toFormat(outputFormat)}`;
     } else if (rangeDate.start !== undefined && rangeDate.end === undefined) {
-      finallyValue = `${DateTime.fromJSDate(rangeDate.start).toFormat(outputFormat)} ~ `;
+      finallyValue = `${DateTime.fromJSDate(rangeDate.start).toFormat(outputFormat)} ${rangeDivideString}`;
     } else if (rangeDate.start === undefined && rangeDate.end !== undefined) {
-      finallyValue = `~ ${DateTime.fromJSDate(rangeDate.end).toFormat(outputFormat)}`;
+      finallyValue = `${rangeDivideString} ${DateTime.fromJSDate(rangeDate.end).toFormat(outputFormat)}`;
     }
 
     return finallyValue;
-  }, [outputFormat]);
+  }, [outputFormat, rangeDivideString]);
 
   if (typeof document !== 'undefined' && isExistPortal === false) {
     const portalElement = document.querySelector(`#${portalElementId}`);
@@ -631,6 +632,7 @@ export function DatePicker(props: IDatePicker.Props) {
                 <RangeItemContainer 
                   pickType={pickType}
                   timeType={timeType}
+                  rangeDivideString={rangeDivideString}
                   outputFormat={outputFormat}
                   target="start"
                   isSelected={rangeDateControlTarget === 'start'}
@@ -644,6 +646,7 @@ export function DatePicker(props: IDatePicker.Props) {
                 <RangeItemContainer 
                   pickType={pickType}
                   timeType={timeType}
+                  rangeDivideString={rangeDivideString}
                   outputFormat={outputFormat}
                   target="end"
                   isSelected={rangeDateControlTarget === 'end'}
@@ -1015,6 +1018,7 @@ function RangeItemContainer(props: IDatePicker.RangeItemContainerProps) {
     setSelectedRangeDateProxy,
   } = props;
 
+  const rangeDivideString = useMemo(() => props.rangeDivideString ?? '~', [props.rangeDivideString]);
   // const [dateValue, setDateValue] = useState<string>('');
 
   const layoutType = useMemo<IDatePicker.RangeItemContainerLayoutType>(() => {

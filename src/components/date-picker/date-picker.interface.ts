@@ -73,6 +73,7 @@ export declare namespace IDatePicker {
     // isTimeAllowSecondPick?: boolean;
     timeType?: TimeType;
     rangeType?: RangeType;
+    rangeDivideString?: string;
 
     selectedDate?: Date | undefined;
     setSelectedDate?: Dispatch<SetStateAction<Date | undefined>>;
@@ -111,6 +112,7 @@ export declare namespace IDatePicker {
 
   export interface RangeItemContainerProps {
     target: RangeDateControlTarget;
+    rangeDivideString: string;
     pickType: PickType;
     timeType: TimeType | undefined;
     outputFormat: string;
