@@ -251,6 +251,24 @@ export function DatePicker(props: IDatePicker.Props) {
     }
   });
 
+  function parsingTimeString(value: string) {
+    if (typeof value !== 'string') return 'none' as const;
+    
+    if (value.length === 2) {
+      return `HH` as const;
+    }
+
+    if (value.length === 5) {
+      return `HH:mm` as const;
+    }
+
+    if (value.length === 8) {
+      return `HH:mm:ss` as const;
+    }
+
+    return 'none' as const;
+  }
+
   const inputOnChangeCallback = useRef((event: Event) => {
     latestTypingDate.current = new Date();
     let value = (event.target as any)?.value;
@@ -263,6 +281,11 @@ export function DatePicker(props: IDatePicker.Props) {
 
       let myValue = _value;
       if (pickType === 'time') {
+        const parsingTimeType = parsingTimeString(myValue);
+        switch(parsingTimeType) {
+          case 'HH': myValue += ':00:00'; break;
+          case 'HH:mm': myValue += ':00'; break;
+        }
         myValue = `2023-09-09 ` + myValue;
       } else if (pickType === 'month') {
         const myValueSplit = myValue.split(' ');

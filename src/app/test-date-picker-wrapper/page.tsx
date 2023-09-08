@@ -52,28 +52,28 @@ export default function Page() {
           setSelectedRangeDate={setSelectedRangeDate} 
           isMatchInputWidth={true} 
           rangeType="range"
-          pickType={"month"} 
-          timeType="hour"
+          pickType={"time"} 
+          timeType="hour-minute"
           // outputFormat="yyyy-MM-dd HH:00"
-          defaultValues={{
-            isForce: true,
-            range: {
-              start: {
-                day: 1,
-                hour: 0, 
-                // minute: 0, 
-                second: 0, 
-                millisecond: 0,
-              },
-              end: {
-                day: 'last-of-month',
-                hour: 23, 
-                // minute: 59, 
-                second: 59, 
-                millisecond: 999,
-              },
-            },
-          }}
+          // defaultValues={{
+          //   isForce: true,
+          //   range: {
+          //     start: {
+          //       day: 1,
+          //       hour: 0, 
+          //       // minute: 0, 
+          //       second: 0, 
+          //       millisecond: 0,
+          //     },
+          //     end: {
+          //       day: 'last-of-month',
+          //       hour: 23, 
+          //       // minute: 59, 
+          //       second: 59, 
+          //       millisecond: 999,
+          //     },
+          //   },
+          // }}
           onValueChange={(value) => {}} 
           />
       </div>
