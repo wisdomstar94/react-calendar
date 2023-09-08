@@ -20,6 +20,7 @@ export declare namespace IDatePickerWrapper {
       
     allowSelectDates?: IDatePicker.AllowSelectDates;
     outputFormat?: string;
-    onValueChange: (value: string) => void;
+    onValueChange: (value: string) => void
+    onRangeDateDiffDays?: (dayCount: number | undefined) => void;
   }
 }

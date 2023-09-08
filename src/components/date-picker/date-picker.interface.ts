@@ -114,6 +114,7 @@ export declare namespace IDatePicker {
 
     // onSelect?: (date: Date | undefined, outputString: string) => void;
     onValueChange: (value: string) => void;
+    onRangeDateDiffDays?: (dayCount: number | undefined) => void;
     
     outputFormat?: string;
       

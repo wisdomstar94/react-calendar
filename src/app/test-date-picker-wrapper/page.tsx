@@ -52,7 +52,7 @@ export default function Page() {
           setSelectedRangeDate={setSelectedRangeDate} 
           isMatchInputWidth={true} 
           rangeType="range"
-          pickType={"time"} 
+          pickType={"datetime"} 
           timeType="hour-minute"
           // outputFormat="yyyy-MM-dd HH:00"
           // defaultValues={{
@@ -75,6 +75,9 @@ export default function Page() {
           //   },
           // }}
           onValueChange={(value) => {}} 
+          onRangeDateDiffDays={(dayCount) => {
+            console.log('@dayCount', dayCount);
+          }}
           />
       </div>
       <div style={{ paddingLeft: '1600px', paddingRight: '1600px', paddingTop: '1600px', paddingBottom: '1600px' }}>

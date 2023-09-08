@@ -18,6 +18,7 @@ export function DatePickerWrapper(props: IDatePickerWrapper.Props) {
     allowSelectDates,
     outputFormat,
     onValueChange,
+    onRangeDateDiffDays,
   } = props;
 
   const [value, setValue] = useState<string>('');
@@ -55,6 +56,9 @@ export function DatePickerWrapper(props: IDatePickerWrapper.Props) {
         onValueChange={(value) => {
           setValue(value);
           onValueChange(value);
+        }}
+        onRangeDateDiffDays={(dayCount) => {
+          if (typeof onRangeDateDiffDays === 'function') onRangeDateDiffDays(dayCount);
         }}
         width={width}
         />

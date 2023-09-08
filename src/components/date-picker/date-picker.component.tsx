@@ -28,6 +28,7 @@ export function DatePicker(props: IDatePicker.Props) {
     setIsShow,
 
     onValueChange,
+    onRangeDateDiffDays,
     width,
   } = props;
   // const isTimeAllowSecondPick = useMemo(() => props.isTimeAllowSecondPick ?? false, [props.isTimeAllowSecondPick]);
@@ -773,6 +774,15 @@ export function DatePicker(props: IDatePicker.Props) {
       setCurrentCalendarInfo(calendar.getDayCalendarInfo((selectedRangeDate.start ?? selectedRangeDate.end) ?? new Date(), selectedRangeDate));
       if (typeof onValueChange === 'function' && isApplyValue()) {
         onValueChange(getRangeInputValue(selectedRangeDate));
+      }
+
+      if (selectedRangeDate.start !== undefined && selectedRangeDate.end !== undefined) {
+        const startLuxonObj = DateTime.fromJSDate(selectedRangeDate.start);
+        const endLuxonObj = DateTime.fromJSDate(selectedRangeDate.end);
+        const diff = endLuxonObj.diff(startLuxonObj, 'days').days;
+        if (typeof onRangeDateDiffDays === 'function') onRangeDateDiffDays(Math.ceil(diff));
+      } else {
+        if (typeof onRangeDateDiffDays === 'function') onRangeDateDiffDays(undefined);
       }
 
       if (isDefaultValuesForce) {
