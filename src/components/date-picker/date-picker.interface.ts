@@ -4,7 +4,40 @@ export declare namespace IDatePicker {
   export type VerticalDirection = 'top' | 'bottom';
   export type HorizontalDirection = 'left' | 'right';
 
-  export type PickType = 'date' | 'time';
+  export type PickType = 
+    'month' | 
+    'time' | 
+    'date' | 
+    'datetime' |
+    ''
+  ;
+
+  export type TimeType = 
+    'hour' |
+    'hour-minute' |
+    'hour-minute-second' |
+    ''
+  ;
+
+  // export interface TimeSetting {
+  //   allowHour: true;
+  //   allowMinute?: boolean;
+  //   allowSecond?: boolean;
+  // }
+  // export interface DateSetting {
+  //   allowYear?: boolean;
+  //   allowMonth?: boolean;
+  // }
+  // export interface PickType {
+  //   date?: DateSetting;
+  //   time?: TimeSetting;
+  // }
+
+  export interface TimeSetting {
+    allowHour: true;
+    allowMinute?: boolean;
+    allowSecond?: boolean;
+  }
 
   export interface Direction {
     isFull: boolean;
@@ -29,8 +62,9 @@ export declare namespace IDatePicker {
 
   export interface Props {
     inputSelector?: InputSelector;
-    pickTypes: PickType[];
-    isTimeAllowSecondPick?: boolean;
+    pickType: PickType;
+    // isTimeAllowSecondPick?: boolean;
+    timeType?: TimeType;
 
     selectedDate: Date | undefined;
     setSelectedDate: Dispatch<SetStateAction<Date | undefined>>;

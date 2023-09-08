@@ -12,8 +12,9 @@ const spacing = 6;
 export function DatePicker(props: IDatePicker.Props) {
   const {
     inputSelector,
-    pickTypes,
-    
+    pickType,
+    timeType,
+
     selectedDate,
     setSelectedDate,
     allowSelectDates,
@@ -24,31 +25,36 @@ export function DatePicker(props: IDatePicker.Props) {
     onValueChange,
     width,
   } = props;
-  const isTimeAllowSecondPick = useMemo(() => props.isTimeAllowSecondPick ?? false, [props.isTimeAllowSecondPick]);
+  // const isTimeAllowSecondPick = useMemo(() => props.isTimeAllowSecondPick ?? false, [props.isTimeAllowSecondPick]);
+
+  const getSystemOutputFormat = useCallback(() => {
+    let timeFormat = ``;
+    switch(timeType) {
+      case 'hour': timeFormat = `HH`; break;
+      case 'hour-minute': timeFormat = `HH:mm`; break;
+      case 'hour-minute-second': timeFormat = `HH:mm:ss`; break;
+    }
+    if (timeType === undefined) {
+      timeFormat = `HH:mm`;
+    }
+
+    switch(pickType) {
+      case 'date': return `yyyy-MM-dd`;
+      case 'datetime': return `yyyy-MM-dd ${timeFormat}`;
+      case 'time': return timeFormat;
+      case 'month': return `yyyy-MM`;
+    }
+
+    return ``;
+  }, [pickType, timeType]);
+
   const outputFormat = useMemo(() => {
     if (typeof props.outputFormat === 'string') {
       return props.outputFormat;
     }
 
-    const sets = new Set(pickTypes);
-    if (sets.size === 2 && sets.has('date') && sets.has('time')) {
-      if (isTimeAllowSecondPick) {
-        return `yyyy-MM-dd HH:mm:ss`;
-      } else {
-        return `yyyy-MM-dd HH:mm`;
-      }
-    } else if (sets.size === 1 && sets.has('time')) {
-      if (isTimeAllowSecondPick) {
-        return `HH:mm:ss`;
-      } else {
-        return `HH:mm`;
-      }
-    } else if (sets.size === 1 && sets.has('date')) {
-      return `yyyy-MM-dd`;
-    }
-
-    return `yyyy-MM-dd`;
-  }, [isTimeAllowSecondPick, pickTypes, props.outputFormat]);
+    return getSystemOutputFormat();
+  }, [getSystemOutputFormat, props.outputFormat]);
 
   const [currentCalendarInfo, setCurrentCalendarInfo] = useState<IUseCalendar.CalendarInfo>();
   const calendar = useCalendar();
@@ -106,6 +112,10 @@ export function DatePicker(props: IDatePicker.Props) {
 
     return !(isPassStart && isPassEnd);
   }, [allowSelectDates]);
+
+  const isSelectedMonthDate = useCallback((date: Date) => {
+    return date.getFullYear() === selectedDate?.getFullYear() && date.getMonth() === selectedDate?.getMonth();
+  }, [selectedDate]);
 
   const [inputWidth, setInputWidth] = useState<number>();
   const applyWidth = inputSelector?.isMatchInputWidth === true ? (inputWidth ?? 0) : (width ?? 0);
@@ -199,13 +209,12 @@ export function DatePicker(props: IDatePicker.Props) {
     if (typeof value !== 'string') { prevValue.current = value; return; }
     if (prevValue.current === value) return;
 
-    const pickTypeSet = new Set(pickTypes);
-    if (pickTypeSet.size === 1 && pickTypeSet.has('time')) {
+    if (pickType === 'time') {
       value = `2023-09-09 ` + value;
     }
     const luxonObj = DateTime.fromSQL(value);
     if (luxonObj.isValid) {
-      if (typeof setSelectedDate === 'function') setSelectedDate(luxonObj.toJSDate());
+      setSelectedDateProxy(luxonObj.toJSDate());
       // if (typeof onSelect === 'function') onSelect(luxonObj.toJSDate(), luxonObj.toFormat(outputFormat));
     } 
     prevValue.current = value;
@@ -299,6 +308,28 @@ export function DatePicker(props: IDatePicker.Props) {
     setDirection(_direction);
   }
 
+  function setSelectedDateProxy(date: Date | undefined) {
+    if (date === undefined) {
+      setSelectedDate(prev => undefined); 
+      return;
+    }
+
+    let luxonObj = DateTime.fromJSDate(date);
+
+    const systemOutputFormat = getSystemOutputFormat();
+    if (systemOutputFormat === 'yyyy-MM-dd') {
+      luxonObj = luxonObj.set({ hour: 0, minute: 0, second: 0, millisecond: 0 });
+    } else if (systemOutputFormat === 'yyyy-MM') {
+      luxonObj = luxonObj.set({ day: 1, hour: 0, minute: 0, second: 0, millisecond: 0 });
+    } else if (systemOutputFormat === 'yyyy-MM-dd HH') {
+      luxonObj = luxonObj.set({ minute: 0, second: 0, millisecond: 0 });
+    } else if (systemOutputFormat === 'yyyy-MM-dd HH:mm') {
+      luxonObj = luxonObj.set({ second: 0, millisecond: 0 });
+    }
+
+    setSelectedDate(prev => luxonObj.toJSDate()); 
+  }
+
   useEffect(() => {
     const callback = resizeCallback.current;
     callback();
@@ -351,9 +382,6 @@ export function DatePicker(props: IDatePicker.Props) {
     const inputElement = getInputElement();
     inputElement?.removeEventListener('focus', callback);
     inputElement?.addEventListener('focus', callback);
-    if (inputElement !== null) {
-      inputElement.maxLength = 19;
-    }
 
     return () => {
       inputElement?.removeEventListener('focus', callback);
@@ -429,8 +457,78 @@ export function DatePicker(props: IDatePicker.Props) {
               ].join(' ')}>
               <div 
                 className={[
+                  styles['year-months-area'],
+                  Array.from<IDatePicker.PickType>(['month']).includes(pickType) ? '' : styles['hidden'],
+                ].join(' ')}>
+                <div className={styles['top-row']}>
+                  <div className={styles['move-to-month-button-icon-button']}
+                    onClick={() => {
+                      if (currentCalendarInfo?.prevYearDate !== undefined) {
+                        setCurrentCalendarInfo(calendar.getDayCalendarInfo(currentCalendarInfo?.prevYearDate, selectedDate !== undefined ? [selectedDate] : undefined))
+                      }
+                    }}>
+                    <svg xmlns="http://www.w3.org/2000/svg" className={styles['move-to-month-button-icon']} width="20" height="20" viewBox="0 0 24 24" strokeWidth="2" stroke="currentColor" fill="none" strokeLinecap="round" strokeLinejoin="round">
+                      <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+                      <path d="M15 6l-6 6l6 6"></path>
+                    </svg>
+                  </div>
+                  <div className={styles['year-month-area']}>
+                    { currentCalendarInfo?.currentYear }
+                  </div>
+                  <div className={styles['move-to-month-button-icon-button']}
+                    onClick={() => {
+                      if (currentCalendarInfo?.nextYearDate !== undefined) {
+                        setCurrentCalendarInfo(calendar.getDayCalendarInfo(currentCalendarInfo?.nextYearDate, selectedDate !== undefined ? [selectedDate] : undefined))
+                      }
+                    }}>
+                    <svg xmlns="http://www.w3.org/2000/svg" className={styles['move-to-month-button-icon']} width="20" height="20" viewBox="0 0 24 24" strokeWidth="2" stroke="currentColor" fill="none" strokeLinecap="round" strokeLinejoin="round">
+                      <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+                      <path d="M9 6l6 6l-6 6"></path>
+                    </svg>
+                  </div>
+                </div>
+                <div className={styles['month-list-area']}>
+                  {
+                    Array.from({ length: 12 }).map((item, index) => {
+                      const luxonObj = DateTime.now().set({ year: currentCalendarInfo?.currentYear, month: index + 1, day: 1, hour: 0, minute: 0, second: 0, millisecond: 0, });
+                      const date = luxonObj.toJSDate();
+                      return (
+                        <div
+                          key={index}
+                          className={[
+                            isSelectedMonthDate(luxonObj.toJSDate()) ? styles['selected'] : '',
+                            isBlockDate(date) ? styles['blocked'] : '',
+                          ].join(' ')}
+                          onClick={() => {
+                            setSelectedDateProxy(luxonObj.toJSDate());
+                            onValueChange(DateTime.fromJSDate(luxonObj.toJSDate()).toFormat(outputFormat));
+                          }}
+                          >
+                          <div className={styles['wrapper']}>
+                            { (index + 1) }월
+                          </div>
+                          <div 
+                            className={[
+                              styles['lock-icon-container'],
+                              isBlockDate(date) ? '' : styles['hidden'],
+                            ].join(' ')}>
+                            <svg xmlns="http://www.w3.org/2000/svg" className={styles['lock-icon']} width="14" height="14" viewBox="0 0 24 24" strokeWidth="2" stroke="currentColor" fill="none" strokeLinecap="round" strokeLinejoin="round">
+                              <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+                              <path d="M5 13a2 2 0 0 1 2 -2h10a2 2 0 0 1 2 2v6a2 2 0 0 1 -2 2h-10a2 2 0 0 1 -2 -2v-6z"></path>
+                              <path d="M11 16a1 1 0 1 0 2 0a1 1 0 0 0 -2 0"></path>
+                              <path d="M8 11v-4a4 4 0 1 1 8 0v4"></path>
+                            </svg>
+                          </div>
+                        </div>
+                      );
+                    })
+                  }
+                </div>
+              </div>
+              <div 
+                className={[
                   styles['year-month-dates-area'],
-                  pickTypes.includes('date') ? '' : styles['hidden'],
+                  Array.from<IDatePicker.PickType>(['date', 'datetime']).includes(pickType) ? '' : styles['hidden'],
                 ].join(' ')}>
                 <div className={styles['top-row']}>
                   <div className={styles['move-to-month-button-icon-button']}
@@ -496,14 +594,11 @@ export function DatePicker(props: IDatePicker.Props) {
                             if (isBlockDate(item.date)) {
                               return;
                             }
-
                             if (typeof setIsShow === 'function') setIsShow(prev => false);
-                            if (typeof setSelectedDate === 'function') {
-                              setSelectedDate(prev => {
-                                if (prev === undefined) return undefined;
-                                const luxonObj = DateTime.fromJSDate(item.date);
-                                return luxonObj.set({ hour: prev.getHours(), minute: prev.getMinutes(), second: prev.getSeconds() }).toJSDate();
-                              });
+                            if (selectedDate === undefined) {
+                              setSelectedDateProxy(undefined);  
+                            } else {
+                              setSelectedDateProxy(DateTime.fromJSDate(item.date).set({ hour: selectedDate?.getHours(), minute: selectedDate?.getMinutes(), second: selectedDate?.getSeconds() }).toJSDate());
                             }
                             if (typeof onValueChange === 'function') onValueChange(DateTime.fromJSDate(item.date).toFormat(outputFormat));
                           }}>
@@ -538,19 +633,23 @@ export function DatePicker(props: IDatePicker.Props) {
               <div 
                 className={[
                   styles['times-area'],
-                  pickTypes.includes('time') ? styles['show'] : '',
+                  Array.from<IDatePicker.PickType>(['time', 'datetime']).includes(pickType) ? '' : styles['hidden'],
                 ].join(' ')}>
-                <div className={styles['time-block']}>
+                <div 
+                  className={[
+                    styles['time-block'],
+                    Array.from<IDatePicker.TimeType>(['hour', 'hour-minute', 'hour-minute-second']).includes(timeType ?? '') ? '' : styles['hidden'],
+                  ].join(' ')}>
                   <select 
                     className={styles['select-box']} 
                     value={selectedDate?.getHours().toString().padStart(2, '0')}
                     onChange={(event) => {
                       const _value = event.target.value;
-                      setSelectedDate(prev => {
-                        if (prev === undefined) return undefined;
-                        const luxonObj = DateTime.fromJSDate(prev).set({ hour: Number(_value) });
-                        return luxonObj.toJSDate();
-                      });
+                      if (selectedDate === undefined) {
+                        setSelectedDateProxy(undefined);
+                      } else {
+                        setSelectedDateProxy(DateTime.fromJSDate(selectedDate).set({ hour: Number(_value) }).toJSDate());
+                      }
                     }}
                     >
                     {
@@ -566,17 +665,21 @@ export function DatePicker(props: IDatePicker.Props) {
                   </select>
                   <span>시</span>
                 </div>  
-                <div className={styles['time-block']}>
+                <div 
+                  className={[
+                    styles['time-block'],
+                    Array.from<IDatePicker.TimeType>(['hour-minute', 'hour-minute-second']).includes(timeType ?? '') ? '' : styles['hidden'],
+                  ].join(' ')}>
                   <select 
                     className={styles['select-box']} 
                     value={selectedDate?.getMinutes().toString().padStart(2, '0')}
                     onChange={(event) => {
                       const _value = event.target.value;
-                      setSelectedDate(prev => {
-                        if (prev === undefined) return undefined;
-                        const luxonObj = DateTime.fromJSDate(prev).set({ minute: Number(_value) });
-                        return luxonObj.toJSDate();
-                      });
+                      if (selectedDate === undefined) {
+                        setSelectedDateProxy(undefined);
+                      } else {
+                        setSelectedDateProxy(DateTime.fromJSDate(selectedDate).set({ minute: Number(_value) }).toJSDate());
+                      }
                     }}
                     >
                     {
@@ -595,18 +698,18 @@ export function DatePicker(props: IDatePicker.Props) {
                 <div 
                   className={[
                     styles['time-block'],
-                    !isTimeAllowSecondPick ? styles['hidden'] : '',
+                    Array.from<IDatePicker.TimeType>(['hour-minute-second']).includes(timeType ?? '') ? '' : styles['hidden'],
                   ].join(' ')}>
                   <select 
                     className={styles['select-box']} 
                     value={selectedDate?.getSeconds().toString().padStart(2, '0')}
                     onChange={(event) => {
                       const _value = event.target.value;
-                      setSelectedDate(prev => {
-                        if (prev === undefined) return undefined;
-                        const luxonObj = DateTime.fromJSDate(prev).set({ second: Number(_value) });
-                        return luxonObj.toJSDate();
-                      });
+                      if (selectedDate === undefined) {
+                        setSelectedDateProxy(undefined);
+                      } else {
+                        setSelectedDateProxy(DateTime.fromJSDate(selectedDate).set({ second: Number(_value) }).toJSDate());
+                      }
                     }}
                     >
                     {

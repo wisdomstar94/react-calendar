@@ -1,6 +1,6 @@
 "use client"
 import { DatePicker } from "@/components/date-picker/date-picker.component";
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 export default function Page() {
   const inputRef = useRef<HTMLInputElement>(null);
@@ -13,6 +13,10 @@ export default function Page() {
   const [value2, setValue2] = useState<string>('');
   const [isShow2, setIsShow2] = useState<boolean>(false);
   const [selectedDate2, setSelectedDate2] = useState<Date | undefined>(new Date());
+
+  useEffect(() => {
+    console.log('@@selectedDate', selectedDate);
+  }, [selectedDate]);
 
   return (
     <div>
@@ -56,17 +60,17 @@ export default function Page() {
           ref: inputRef,
           isMatchInputWidth: true,
         }}
-        pickTypes={['date', 'time']}
-        // isTimeAllowSecondPick={true}
+        pickType="datetime"
+        timeType="hour"
         isShow={isShow}
         setIsShow={setIsShow}
         selectedDate={selectedDate}
         setSelectedDate={setSelectedDate}
         allowSelectDates={{
-          startDate: new Date('2023-09-01'),
-          endDate: new Date('2023-09-08'),
+          startDate: new Date('2023-03-03'),
+          endDate: new Date('2023-10-08'),
         }}
-        // outputFormat="yyyy-MM-dd"
+        outputFormat="yyyy-MM-dd HH:00"
         onValueChange={(value) => {
           setValue(value);
         }}
@@ -78,8 +82,8 @@ export default function Page() {
           ref: inputRef2,
           isMatchInputWidth: true,
         }}
-        pickTypes={['date']}
-        isTimeAllowSecondPick={true}
+        pickType="date"
+        // timeType=""=
         isShow={isShow2}
         setIsShow={setIsShow2}
         selectedDate={selectedDate2}

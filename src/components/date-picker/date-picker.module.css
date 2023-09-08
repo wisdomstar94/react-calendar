@@ -33,11 +33,55 @@
   background-color: #fff;
 }
 
+
+.date-picker-contaienr .date-picker .year-months-area {
+  width: 100%;
+  display: block;
+  position: relative;
+}
+.date-picker-contaienr .date-picker .year-months-area .month-list-area {
+  width: 100%;
+  display: grid;
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+}
+.date-picker-contaienr .date-picker .year-months-area .month-list-area > div {
+  font-size: 12px;
+  color: #222;
+  display: flex;
+  flex-wrap: wrap;
+  cursor: pointer;
+  justify-content: center;
+  align-items: center;
+  padding: 8px 0;
+  position: relative;
+}
+.date-picker-contaienr .date-picker .year-months-area .month-list-area > div:hover {
+  background-color: #eee;
+}
+.date-picker-contaienr .date-picker .year-months-area .month-list-area > div.selected {
+  background-color: #f2d023;
+}
+.date-picker-contaienr .date-picker .year-months-area .month-list-area > div.blocked {
+  background-color: #ddd;
+  cursor: default;
+}
+.date-picker-contaienr .date-picker .year-months-area .month-list-area > div.blocked.selected {
+  background-color: #dec963;
+  cursor: default;
+}
+.date-picker-contaienr .date-picker .year-months-area .month-list-area > div.blocked:hover {
+  background-color: #ddd;
+}
+.date-picker-contaienr .date-picker .year-months-area .month-list-area > div.blocked .wrapper {
+  color: #999;
+}
+
 .date-picker-contaienr .date-picker .year-month-dates-area {
   width: 100%;
   display: block;
+  position: relative;
 }
-.date-picker-contaienr .date-picker .year-month-dates-area .top-row {
+.date-picker-contaienr .date-picker .top-row {
   width: 100%;
   display: flex;
   flex-wrap: wrap;
@@ -50,7 +94,7 @@
   align-items: center;
   border-bottom: 1px solid #ccc;
 }
-.date-picker-contaienr .date-picker .year-month-dates-area .top-row .year-month-area {
+.date-picker-contaienr .date-picker .top-row .year-month-area {
   margin: 0 6px;
 }
 
@@ -168,12 +212,12 @@
   background-color: #f2d023;
 }
 
-.date-picker-contaienr .date-picker .year-month-dates-area .dates-area > div .lock-icon-container {
+.lock-icon-container {
   position: absolute;
   top: 2px;
   right: 2px;
 }
-.date-picker-contaienr .date-picker .year-month-dates-area .dates-area > div .lock-icon-container > svg {
+.lock-icon-container > svg {
   stroke: #999;
 }
 
@@ -194,15 +238,12 @@
 
 
 .date-picker-contaienr .date-picker .times-area {
-  display: none;
+  display: flex;
   flex-wrap: wrap;
   justify-content: center;
   align-items: center;
   position: relative;
   padding: 6px 0;
-}
-.date-picker-contaienr .date-picker .times-area.show {
-  display: flex;
 }
 .date-picker-contaienr .date-picker .times-area .time-block {
   display: inline-flex;
