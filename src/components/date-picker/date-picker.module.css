@@ -345,10 +345,10 @@
   width: 40px;
 }
 .range-item-container.month .date-input {
-
+  width: calc(100% - 40px);
 }
 .range-item-container.month .time-unit-list {
-
+  display: none;
 }
 .range-item-container.month .time-unit-list .hour-block {
 

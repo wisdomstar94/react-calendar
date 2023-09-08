@@ -113,6 +113,7 @@ export declare namespace IDatePicker {
     target: RangeDateControlTarget;
     pickType: PickType;
     timeType: TimeType | undefined;
+    outputFormat: string;
     isSelected: boolean;
     onClick: () => void;
     selectedRangeDate: undefined | RangeDate;

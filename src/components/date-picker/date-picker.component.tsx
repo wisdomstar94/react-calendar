@@ -119,8 +119,27 @@ export function DatePicker(props: IDatePicker.Props) {
   }, [allowSelectDates]);
 
   const isSelectedMonthDate = useCallback((date: Date) => {
-    return date.getFullYear() === selectedDate?.getFullYear() && date.getMonth() === selectedDate?.getMonth();
-  }, [selectedDate]);
+    if (rangeType === 'single') {
+      return date.getFullYear() === selectedDate?.getFullYear() && date.getMonth() === selectedDate?.getMonth();
+    }
+
+    if (rangeType === 'range') {
+      const start = selectedRangeDate?.start;
+      const end = selectedRangeDate?.end;
+
+      if (start !== undefined && end === undefined) {
+        return date.getFullYear() === start?.getFullYear() && date.getMonth() === start?.getMonth();
+      } else if (start === undefined && end !== undefined) {
+        return date.getFullYear() === end?.getFullYear() && date.getMonth() === end?.getMonth();
+      } else if (start !== undefined && end !== undefined) {
+        const startDate = DateTime.fromJSDate(start).set({ day: 1, hour: 0, minute: 0, second: 0, millisecond: 0 }).toJSDate();
+        const endDate = DateTime.fromJSDate(end).endOf('month').set({ hour: 23, minute: 59, second: 59, millisecond: 999 }).toJSDate();
+        return date.getTime() >= startDate.getTime() && date.getTime() <= endDate.getTime();
+      }
+    }
+
+    return false;
+  }, [rangeType, selectedDate, selectedRangeDate?.end, selectedRangeDate?.start]);
 
   const [inputWidth, setInputWidth] = useState<number>();
   const applyWidth = inputSelector?.isMatchInputWidth === true ? (inputWidth ?? 0) : (width ?? 0);
@@ -588,6 +607,7 @@ export function DatePicker(props: IDatePicker.Props) {
                 <RangeItemContainer 
                   pickType={pickType}
                   timeType={timeType}
+                  outputFormat={outputFormat}
                   target="start"
                   isSelected={rangeDateControlTarget === 'start'}
                   selectedRangeDate={selectedRangeDate}
@@ -600,6 +620,7 @@ export function DatePicker(props: IDatePicker.Props) {
                 <RangeItemContainer 
                   pickType={pickType}
                   timeType={timeType}
+                  outputFormat={outputFormat}
                   target="end"
                   isSelected={rangeDateControlTarget === 'end'}
                   selectedRangeDate={selectedRangeDate}
@@ -654,8 +675,41 @@ export function DatePicker(props: IDatePicker.Props) {
                             isBlockDate(date) ? styles['blocked'] : '',
                           ].join(' ')}
                           onClick={() => {
-                            setSelectedDateProxy(luxonObj.toJSDate());
-                            if (typeof onValueChange === 'function') onValueChange(DateTime.fromJSDate(luxonObj.toJSDate()).toFormat(outputFormat));
+                            if (rangeType === 'single') {
+                              setSelectedDateProxy(luxonObj.toJSDate());
+                              if (typeof onValueChange === 'function') onValueChange(DateTime.fromJSDate(luxonObj.toJSDate()).toFormat(outputFormat));
+                            }
+                            
+                            if (rangeType === 'range') {
+                              if (selectedRangeDate === undefined) {
+                                setSelectedRangeDateProxy(undefined);
+                              } else {
+                                let newSelectedRangeDate: IDatePicker.RangeDate | undefined;
+                                if (rangeDateControlTarget === 'start') {
+                                  let start: Date | undefined = undefined;
+                                  if (selectedRangeDate.start !== undefined) {
+                                    start = DateTime.fromJSDate(selectedRangeDate.start).set({ year: date.getFullYear(), month: date.getMonth() + 1 }).toJSDate();
+                                  }
+                                  newSelectedRangeDate = {
+                                    start,
+                                    end: selectedRangeDate.end,
+                                  };
+                                  setSelectedRangeDateProxy(newSelectedRangeDate);
+                                } else if (rangeDateControlTarget === 'end') {
+                                  let end: Date | undefined = undefined;
+                                  if (selectedRangeDate.end !== undefined) {
+                                    end = DateTime.fromJSDate(selectedRangeDate.end).set({ year: date.getFullYear(), month: date.getMonth() + 1 }).toJSDate();
+                                  }
+                                  newSelectedRangeDate = {
+                                    start: selectedRangeDate.start,
+                                    end,
+                                  };
+                                  setSelectedRangeDateProxy(newSelectedRangeDate);
+                                }
+
+                                if (typeof onValueChange === 'function') onValueChange(getRangeInputValue(newSelectedRangeDate));
+                              }
+                            }
                           }}
                           >
                           <div className={styles['wrapper']}>
@@ -930,6 +984,7 @@ function RangeItemContainer(props: IDatePicker.RangeItemContainerProps) {
     target,
     pickType,
     timeType,
+    outputFormat,
     isSelected,
     onClick,
     selectedRangeDate,
@@ -968,8 +1023,14 @@ function RangeItemContainer(props: IDatePicker.RangeItemContainerProps) {
     if (selectedRangeDate === undefined) return ``;
     if (selectedDate === undefined) return ``;
     const luxonObj = DateTime.fromJSDate(selectedDate);
-    return luxonObj.toFormat('yyyy-MM-dd');
-  }, [selectedRangeDate, selectedDate]);
+    let format = '';
+    if (pickType === 'month') {
+      format = `yyyy-MM`;
+    } else if (pickType === 'date' || pickType === 'datetime') {
+      format = `yyyy-MM-dd`;
+    }
+    return luxonObj.toFormat(format);
+  }, [selectedRangeDate, selectedDate, pickType]);
 
   return (
     <>
