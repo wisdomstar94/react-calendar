@@ -10,6 +10,7 @@ export function DatePickerWrapper(props: IDatePickerWrapper.Props) {
     timeType,
     rangeType,
     rangeDivideString,
+    defaultValues,
     selectedDate,
     setSelectedDate,
     selectedRangeDate,
@@ -50,6 +51,7 @@ export function DatePickerWrapper(props: IDatePickerWrapper.Props) {
         setSelectedRangeDate={setSelectedRangeDate}
         allowSelectDates={allowSelectDates}
         outputFormat={outputFormat}
+        defaultValues={defaultValues}
         onValueChange={(value) => {
           setValue(value);
           onValueChange(value);

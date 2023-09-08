@@ -16,6 +16,8 @@ export declare namespace IDatePickerWrapper {
     selectedRangeDate?: IDatePicker.RangeDate;
     setSelectedRangeDate?: Dispatch<SetStateAction<IDatePicker.RangeDate | undefined>>;
 
+    defaultValues?: IDatePicker.DefaultValues;
+      
     allowSelectDates?: IDatePicker.AllowSelectDates;
     outputFormat?: string;
     onValueChange: (value: string) => void;

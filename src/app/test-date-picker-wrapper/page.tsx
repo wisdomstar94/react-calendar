@@ -10,6 +10,14 @@ export default function Page() {
   const [init, setInit] = useState<boolean>(false);
 
   useEffect(() => {
+    console.log(`@@@selectedRangeDate`, selectedRangeDate);
+  }, [selectedRangeDate]);
+
+  useEffect(() => {
+    console.log(`@@@selectedDate`, selectedDate);
+  }, [selectedDate]);
+
+  useEffect(() => {
     setInit(true);
   }, []);
 
@@ -17,20 +25,20 @@ export default function Page() {
     if (init === false) return;
 
     setSelectedRangeDate({
-      start: new Date(`2023-09-04`),
-      end: new Date(`2023-09-22`),
+      start: new Date(`2023-09-04 02:02:02`),
+      end: new Date(`2023-09-22 11:12:03`),
     });
 
-    setSelectedDate(new Date(`2023-09-04`));
+    // setSelectedDate(new Date(`2023-09-04`));
 
-    setTimeout(() => {
-      setSelectedRangeDate({
-        start: new Date(`2023-10-09`),
-        end: new Date(`2023-11-23`),
-      });
+    // setTimeout(() => {
+    //   setSelectedRangeDate({
+    //     start: new Date(`2023-10-09`),
+    //     end: new Date(`2023-11-23`),
+    //   });
 
-      setSelectedDate(new Date(`2023-11-23 11:14:48`));
-    }, 5000);
+    //   setSelectedDate(new Date(`2023-11-23 11:14:48`));
+    // }, 5000);
   }, [init]);
 
   return (
@@ -44,9 +52,19 @@ export default function Page() {
           setSelectedRangeDate={setSelectedRangeDate} 
           isMatchInputWidth={true} 
           rangeType="range"
-          pickType={"date"} 
+          pickType={"datetime"} 
           timeType="hour"
-          // outputFormat="yyyy-MM-dd HH:00"
+          outputFormat="yyyy-MM-dd HH:00"
+          defaultValues={{
+            range: {
+              start: {
+                hour: 0, minute: 0, second: 0, millisecond: 0,
+              },
+              end: {
+                hour: 23, minute: 59, second: 59, millisecond: 999,
+              },
+            },
+          }}
           onValueChange={(value) => {}} 
           />
       </div>
@@ -61,6 +79,11 @@ export default function Page() {
           rangeType="single"
           pickType={"datetime"} 
           timeType="hour-minute-second"
+          defaultValues={{
+            single: {
+              hour: 0, minute: 0, second: 0, millisecond: 0,
+            },
+          }}
           // outputFormat="yyyy-MM-dd HH:00"
           onValueChange={(value) => {}} 
           />

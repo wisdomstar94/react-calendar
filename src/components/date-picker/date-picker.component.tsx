@@ -22,6 +22,8 @@ export function DatePicker(props: IDatePicker.Props) {
     selectedRangeDate,
     setSelectedRangeDate,
 
+    defaultValues,
+
     isShow,
     setIsShow,
 
@@ -29,6 +31,27 @@ export function DatePicker(props: IDatePicker.Props) {
     width,
   } = props;
   // const isTimeAllowSecondPick = useMemo(() => props.isTimeAllowSecondPick ?? false, [props.isTimeAllowSecondPick]);
+
+  const isDefaultValuesForce = useMemo(() => defaultValues?.isForce ?? false, [defaultValues?.isForce]);
+
+  const singleDefaultValueDay = useMemo(() => defaultValues?.single?.day ?? 0, [defaultValues?.single?.day]);
+  const singleDefaultValueHour = useMemo(() => defaultValues?.single?.hour ?? 0, [defaultValues?.single?.hour]);
+  const singleDefaultValueMinute = useMemo(() => defaultValues?.single?.minute ?? 0, [defaultValues?.single?.minute]);
+  const singleDefaultValueSecond = useMemo(() => defaultValues?.single?.second ?? 0, [defaultValues?.single?.second]);
+  const singleDefaultValueMillisecond = useMemo(() => defaultValues?.single?.millisecond ?? 0, [defaultValues?.single?.millisecond]);
+
+  const rangeStartDefaultValueDay = useMemo(() => defaultValues?.range?.start?.day ?? 0, [defaultValues?.range?.start?.day]);
+  const rangeStartDefaultValueHour = useMemo(() => defaultValues?.range?.start?.hour ?? 0, [defaultValues?.range?.start?.hour]);
+  const rangeStartDefaultValueMinute = useMemo(() => defaultValues?.range?.start?.minute ?? 0, [defaultValues?.range?.start?.minute]);
+  const rangeStartDefaultValueSecond = useMemo(() => defaultValues?.range?.start?.second ?? 0, [defaultValues?.range?.start?.second]);
+  const rangeStartDefaultValueMillisecond = useMemo(() => defaultValues?.range?.start?.millisecond ?? 0, [defaultValues?.range?.start?.millisecond]);
+
+  const rangeEndDefaultValueDay = useMemo(() => defaultValues?.range?.end?.day ?? 0, [defaultValues?.range?.end?.day]);
+  const rangeEndDefaultValueHour = useMemo(() => defaultValues?.range?.end?.hour ?? 0, [defaultValues?.range?.end?.hour]);
+  const rangeEndDefaultValueMinute = useMemo(() => defaultValues?.range?.end?.minute ?? 0, [defaultValues?.range?.end?.minute]);
+  const rangeEndDefaultValueSecond = useMemo(() => defaultValues?.range?.end?.second ?? 0, [defaultValues?.range?.end?.second]);
+  const rangeEndDefaultValueMillisecond = useMemo(() => defaultValues?.range?.end?.millisecond ?? 0, [defaultValues?.range?.end?.millisecond]);
+
   const rangeType = useMemo<IDatePicker.RangeType>(() => props.rangeType ?? 'single', [props.rangeType]);
   const rangeDivideString = useMemo(() => props.rangeDivideString ?? '~', [props.rangeDivideString]);
   const [rangeDateControlTarget, setRangeDateControlTarget] = useState<IDatePicker.RangeDateControlTarget>('start');
@@ -416,13 +439,13 @@ export function DatePicker(props: IDatePicker.Props) {
 
     const systemOutputFormat = getSystemOutputFormat();
     if (systemOutputFormat === 'yyyy-MM-dd') {
-      luxonObj = luxonObj.set({ hour: 0, minute: 0, second: 0, millisecond: 0 });
+      luxonObj = luxonObj.set({ hour: singleDefaultValueHour, minute: singleDefaultValueMinute, second: singleDefaultValueSecond, millisecond: singleDefaultValueMillisecond });
     } else if (systemOutputFormat === 'yyyy-MM') {
-      luxonObj = luxonObj.set({ day: 1, hour: 0, minute: 0, second: 0, millisecond: 0 });
+      luxonObj = luxonObj.set({ day: singleDefaultValueDay, hour: singleDefaultValueHour, minute: singleDefaultValueMinute, second: singleDefaultValueSecond, millisecond: singleDefaultValueMillisecond });
     } else if (systemOutputFormat === 'yyyy-MM-dd HH') {
-      luxonObj = luxonObj.set({ minute: 0, second: 0, millisecond: 0 });
+      luxonObj = luxonObj.set({ minute: singleDefaultValueMinute, second: singleDefaultValueSecond, millisecond: singleDefaultValueMillisecond });
     } else if (systemOutputFormat === 'yyyy-MM-dd HH:mm') {
-      luxonObj = luxonObj.set({ second: 0, millisecond: 0 });
+      luxonObj = luxonObj.set({ second: singleDefaultValueMinute, millisecond: singleDefaultValueMillisecond });
     }
 
     if (typeof setSelectedDate === 'function') setSelectedDate(prev => luxonObj.toJSDate()); 
@@ -443,25 +466,25 @@ export function DatePicker(props: IDatePicker.Props) {
 
     if (startLuxonObj !== undefined) {
       if (systemOutputFormat === 'yyyy-MM-dd') {
-        startLuxonObj = startLuxonObj.set({ hour: 0, minute: 0, second: 0, millisecond: 0 });
+        startLuxonObj = startLuxonObj.set({ hour: rangeStartDefaultValueHour, minute: rangeStartDefaultValueMinute, second: rangeStartDefaultValueSecond, millisecond: rangeStartDefaultValueMillisecond });
       } else if (systemOutputFormat === 'yyyy-MM') {
-        startLuxonObj = startLuxonObj.set({ day: 1, hour: 0, minute: 0, second: 0, millisecond: 0 });
+        startLuxonObj = startLuxonObj.set({ day: rangeStartDefaultValueDay, hour: rangeStartDefaultValueHour, minute: rangeStartDefaultValueMinute, second: rangeStartDefaultValueSecond, millisecond: rangeStartDefaultValueMillisecond });
       } else if (systemOutputFormat === 'yyyy-MM-dd HH') {
-        startLuxonObj = startLuxonObj.set({ minute: 0, second: 0, millisecond: 0 });
+        startLuxonObj = startLuxonObj.set({ minute: rangeStartDefaultValueMinute, second: rangeStartDefaultValueSecond, millisecond: rangeStartDefaultValueMillisecond });
       } else if (systemOutputFormat === 'yyyy-MM-dd HH:mm') {
-        startLuxonObj = startLuxonObj.set({ second: 0, millisecond: 0 });
+        startLuxonObj = startLuxonObj.set({ second: rangeStartDefaultValueSecond, millisecond: rangeStartDefaultValueMillisecond });
       }
     }
 
     if (endLuxonObj !== undefined) {
       if (systemOutputFormat === 'yyyy-MM-dd') {
-        endLuxonObj = endLuxonObj.set({ hour: 0, minute: 0, second: 0, millisecond: 0 });
+        endLuxonObj = endLuxonObj.set({ hour: rangeEndDefaultValueHour, minute: rangeEndDefaultValueMinute, second: rangeEndDefaultValueSecond, millisecond: rangeEndDefaultValueMillisecond });
       } else if (systemOutputFormat === 'yyyy-MM') {
-        endLuxonObj = endLuxonObj.set({ day: 1, hour: 0, minute: 0, second: 0, millisecond: 0 });
+        endLuxonObj = endLuxonObj.set({ day: rangeEndDefaultValueDay, hour: rangeEndDefaultValueHour, minute: rangeEndDefaultValueMinute, second: rangeEndDefaultValueSecond, millisecond: rangeEndDefaultValueMillisecond });
       } else if (systemOutputFormat === 'yyyy-MM-dd HH') {
-        endLuxonObj = endLuxonObj.set({ minute: 0, second: 0, millisecond: 0 });
+        endLuxonObj = endLuxonObj.set({ minute: rangeEndDefaultValueMinute, second: rangeEndDefaultValueSecond, millisecond: rangeEndDefaultValueMillisecond });
       } else if (systemOutputFormat === 'yyyy-MM-dd HH:mm') {
-        endLuxonObj = endLuxonObj.set({ second: 0, millisecond: 0 });
+        endLuxonObj = endLuxonObj.set({ second: rangeEndDefaultValueSecond, millisecond: rangeEndDefaultValueMillisecond });
       }
     }
 

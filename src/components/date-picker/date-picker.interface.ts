@@ -72,6 +72,25 @@ export declare namespace IDatePicker {
     endDate?: Date;
   }
 
+  export interface SingleDefaultValues {
+    day?: number;
+    hour?: number;
+    minute?: number;
+    second?: number;
+    millisecond?: number;
+  }
+
+  export interface RangeDefaultValues {
+    start?: SingleDefaultValues;
+    end?: SingleDefaultValues;
+  }
+
+  export interface DefaultValues {
+    single?: SingleDefaultValues;
+    range?: RangeDefaultValues;
+    isForce?: boolean;
+  }
+
   export interface Props {
     inputSelector?: InputSelector;
     pickType: PickType;
@@ -85,6 +104,8 @@ export declare namespace IDatePicker {
 
     selectedRangeDate?: RangeDate;
     setSelectedRangeDate?: Dispatch<SetStateAction<RangeDate | undefined>>;
+
+    defaultValues?: DefaultValues;
 
     isShow: boolean;
     setIsShow: Dispatch<SetStateAction<boolean>>;
