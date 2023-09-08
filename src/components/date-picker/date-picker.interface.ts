@@ -3,6 +3,9 @@ import { Dispatch, RefObject, SetStateAction } from "react";
 export declare namespace IDatePicker {
   export type VerticalDirection = 'top' | 'bottom';
   export type HorizontalDirection = 'left' | 'right';
+
+  export type PickType = 'date' | 'time';
+
   export interface Direction {
     isFull: boolean;
     vertical?: VerticalDirection;
@@ -26,14 +29,17 @@ export declare namespace IDatePicker {
 
   export interface Props {
     inputSelector?: InputSelector;
+    pickTypes: PickType[];
+    isTimeAllowSecondPick?: boolean;
 
-    selectedDateObj?: Date;
-    setSelectedDateObj?: Dispatch<SetStateAction<Date | undefined>>;
+    selectedDate: Date | undefined;
+    setSelectedDate: Dispatch<SetStateAction<Date | undefined>>;
 
-    isShow?: boolean;
-    setIsShow?: Dispatch<SetStateAction<boolean | undefined>>;
+    isShow: boolean;
+    setIsShow: Dispatch<SetStateAction<boolean>>;
 
-    onSelect?: (date: Date | undefined, outputString: string) => void;
+    // onSelect?: (date: Date | undefined, outputString: string) => void;
+    onValueChange: (value: string) => void;
     outputFormat?: string;
       
     width?: number;

@@ -12,17 +12,38 @@ const spacing = 6;
 export function DatePicker(props: IDatePicker.Props) {
   const {
     inputSelector,
+    pickTypes,
     
-    selectedDateObj,
-    setSelectedDateObj,
+    selectedDate,
+    setSelectedDate,
 
     isShow,
     setIsShow,
 
-    onSelect,
+    onValueChange,
     width,
   } = props;
-  const outputFormat = useMemo(() => props.outputFormat ?? `yyyy-MM-dd`, [props.outputFormat]);
+  const isTimeAllowSecondPick = useMemo(() => props.isTimeAllowSecondPick ?? false, [props.isTimeAllowSecondPick]);
+  const outputFormat = useMemo(() => {
+    if (typeof props.outputFormat === 'string') {
+      return props.outputFormat;
+    }
+
+    const sets = new Set(pickTypes);
+    if (sets.size === 2 && sets.has('date') && sets.has('time')) {
+      if (isTimeAllowSecondPick) {
+        return `yyyy-MM-dd HH:mm:ss`;
+      } else {
+        return `yyyy-MM-dd HH:mm`;
+      }
+    } else if (sets.size === 1 && sets.has('time')) {
+      return `HH:mm`;
+    } else if (sets.size === 1 && sets.has('date')) {
+      return `yyyy-MM-dd`;
+    }
+
+    return `yyyy-MM-dd`;
+  }, [isTimeAllowSecondPick, pickTypes, props.outputFormat]);
 
   const [currentCalendarInfo, setCurrentCalendarInfo] = useState<IUseCalendar.CalendarInfo>();
   const calendar = useCalendar();
@@ -31,6 +52,9 @@ export function DatePicker(props: IDatePicker.Props) {
   const datePickerRef = useRef<HTMLDivElement>(null);
   const [resizeOrscrollInfo, setResizeOrscrollInfo] = useState<IDatePicker.ResizeOrScrollInfo>();
   const [isExistPortal, setIsExistPortal] = useState<boolean>(false);
+
+  const latestTypingDate = useRef<Date>();
+  const prevValue = useRef('');
   
   const getInputElement = useCallback((): HTMLInputElement | null => {
     let element: HTMLInputElement | null = null;
@@ -103,7 +127,7 @@ export function DatePicker(props: IDatePicker.Props) {
   });
 
   const windowClickCallback = useRef((event: MouseEvent | TouchEvent) => {
-    console.log('@event', event);
+    // console.log('@event', event);
     let clientX = 0;
     let clientY = 0;
     if (event instanceof MouseEvent) {
@@ -132,21 +156,21 @@ export function DatePicker(props: IDatePicker.Props) {
   });
 
   const inputOnChangeCallback = useRef((event: Event) => {
+    latestTypingDate.current = new Date();
     // console.log('@inputOnChangeCallback', event);
     const value = (event.target as any)?.value;
-    if (typeof value !== 'string') return;
-    if (value.length < 10) return;
+    if (typeof value !== 'string') { prevValue.current = value; return; }
+    if (value.length < 10) { prevValue.current = value; return; }
     // console.log('@value', value);
+
+    if (prevValue.current === value) return;
+
     const luxonObj = DateTime.fromSQL(value);
     if (luxonObj.isValid) {
-      if (typeof setSelectedDateObj === 'function') setSelectedDateObj(luxonObj.toJSDate());
-      if (typeof onSelect === 'function') onSelect(luxonObj.toJSDate(), luxonObj.toFormat(outputFormat));
-    } else {
-      if (typeof setSelectedDateObj === 'function') setSelectedDateObj(undefined);
-      if (typeof onSelect === 'function') onSelect(undefined, '');
-    }
-    // console.log('@isValid', luxonObj.isValid);
-    // console.log('@toJSDate', luxonObj.toJSDate());
+      if (typeof setSelectedDate === 'function') setSelectedDate(luxonObj.toJSDate());
+      // if (typeof onSelect === 'function') onSelect(luxonObj.toJSDate(), luxonObj.toFormat(outputFormat));
+    } 
+    prevValue.current = value;
   });
 
   if (typeof document !== 'undefined' && isExistPortal === false) {
@@ -274,9 +298,11 @@ export function DatePicker(props: IDatePicker.Props) {
       const callback = resizeCallback.current;
       callback();
 
-      if (selectedDateObj !== undefined) {
-        setCurrentCalendarInfo(calendar.getDayCalendarInfo(selectedDateObj, [selectedDateObj]));
+      if (selectedDate !== undefined) {
+        setCurrentCalendarInfo(calendar.getDayCalendarInfo(selectedDate, [selectedDate]));
       }
+    } else {
+      if (typeof onValueChange === 'function' && selectedDate !== undefined) onValueChange(DateTime.fromJSDate(selectedDate).toFormat(outputFormat));
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isShow]);
@@ -303,7 +329,7 @@ export function DatePicker(props: IDatePicker.Props) {
     inputElement?.removeEventListener('keyup', callback);
     inputElement?.addEventListener('keyup', callback);
 
-    console.log('@@.inputElement', inputElement);
+    // console.log('@@.inputElement', inputElement);
 
     return () => {
       inputElement?.removeEventListener('keyup', callback);
@@ -325,13 +351,25 @@ export function DatePicker(props: IDatePicker.Props) {
   }, [isExistPortal]);
 
   useEffect(() => {
-    if (selectedDateObj === undefined) {
+    const isApplyValue = () => {
+      if (latestTypingDate.current !== undefined) {
+        if (Date.now() - latestTypingDate.current.getTime() <= 150) {
+          return false;
+        }
+      }
+      return true;
+    };
+    
+    // console.log('@@@selectedDate', selectedDate);
+    if (selectedDate === undefined) {
       setCurrentCalendarInfo(calendar.getDayCalendarInfo(new Date()));
+      if (typeof onValueChange === 'function' && isApplyValue()) onValueChange('');
     } else {
-      setCurrentCalendarInfo(calendar.getDayCalendarInfo(selectedDateObj, [selectedDateObj]));
+      setCurrentCalendarInfo(calendar.getDayCalendarInfo(selectedDate, [selectedDate]));
+      if (typeof onValueChange === 'function' && isApplyValue()) onValueChange(DateTime.fromJSDate(selectedDate).toFormat(outputFormat));
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [selectedDateObj]);
+  }, [selectedDate]);
 
   return (
     <>
@@ -347,82 +385,182 @@ export function DatePicker(props: IDatePicker.Props) {
               className={[
                 styles['date-picker'],
               ].join(' ')}>
-              <div className={styles['top-row']}>
-                <div className={styles['move-to-month-button-icon-button']}
-                  onClick={() => {
-                    if (currentCalendarInfo?.prevMonthDate !== undefined) {
-                      setCurrentCalendarInfo(calendar.getDayCalendarInfo(currentCalendarInfo?.prevMonthDate))
-                    }
-                  }}>
-                  <svg xmlns="http://www.w3.org/2000/svg" className={styles['move-to-month-button-icon']} width="20" height="20" viewBox="0 0 24 24" strokeWidth="2" stroke="currentColor" fill="none" strokeLinecap="round" strokeLinejoin="round">
-                    <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
-                    <path d="M15 6l-6 6l6 6"></path>
-                  </svg>
+              <div 
+                className={[
+                  styles['year-month-dates-area'],
+                  pickTypes.includes('date') ? styles['show'] : '',
+                ].join(' ')}>
+                <div className={styles['top-row']}>
+                  <div className={styles['move-to-month-button-icon-button']}
+                    onClick={() => {
+                      if (currentCalendarInfo?.prevMonthDate !== undefined) {
+                        setCurrentCalendarInfo(calendar.getDayCalendarInfo(currentCalendarInfo?.prevMonthDate))
+                      }
+                    }}>
+                    <svg xmlns="http://www.w3.org/2000/svg" className={styles['move-to-month-button-icon']} width="20" height="20" viewBox="0 0 24 24" strokeWidth="2" stroke="currentColor" fill="none" strokeLinecap="round" strokeLinejoin="round">
+                      <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+                      <path d="M15 6l-6 6l6 6"></path>
+                    </svg>
+                  </div>
+                  <div className={styles['year-month-area']}>
+                    { currentCalendarInfo?.currentYear }.{ currentCalendarInfo?.currentMonth.toString().padStart(2, '0') }
+                  </div>
+                  <div className={styles['move-to-month-button-icon-button']}
+                    onClick={() => {
+                      if (currentCalendarInfo?.nextMonthDate !== undefined) {
+                        setCurrentCalendarInfo(calendar.getDayCalendarInfo(currentCalendarInfo?.nextMonthDate))
+                      }
+                    }}>
+                    <svg xmlns="http://www.w3.org/2000/svg" className={styles['move-to-month-button-icon']} width="20" height="20" viewBox="0 0 24 24" strokeWidth="2" stroke="currentColor" fill="none" strokeLinecap="round" strokeLinejoin="round">
+                      <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+                      <path d="M9 6l6 6l-6 6"></path>
+                    </svg>
+                  </div>
                 </div>
-                <div className={styles['year-month-area']}>
-                  { currentCalendarInfo?.currentYear }.{ currentCalendarInfo?.currentMonth.toString().padStart(2, '0') }
+                <div className={styles['day-row']}>
+                  <div>
+                    일
+                  </div>
+                  <div>
+                    월
+                  </div>
+                  <div>
+                    화
+                  </div>
+                  <div>
+                    수
+                  </div>
+                  <div>
+                    목
+                  </div>
+                  <div>
+                    금
+                  </div>
+                  <div>
+                    토
+                  </div>
                 </div>
-                <div className={styles['move-to-month-button-icon-button']}
-                  onClick={() => {
-                    if (currentCalendarInfo?.nextMonthDate !== undefined) {
-                      setCurrentCalendarInfo(calendar.getDayCalendarInfo(currentCalendarInfo?.nextMonthDate))
-                    }
-                  }}>
-                  <svg xmlns="http://www.w3.org/2000/svg" className={styles['move-to-month-button-icon']} width="20" height="20" viewBox="0 0 24 24" strokeWidth="2" stroke="currentColor" fill="none" strokeLinecap="round" strokeLinejoin="round">
-                    <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
-                    <path d="M9 6l6 6l-6 6"></path>
-                  </svg>
+                <div className={styles['dates-area']}>
+                  {
+                    currentCalendarInfo?.dayItems.map(item => {
+                      return (
+                        <div key={item.yyyymmdd}
+                          className={[
+                            item.isSelected ? styles['selected'] : '',
+                            !item.isIncludeCurrentMonth ? styles['prev-or-next-month-date'] : '',
+                          ].join(' ')}
+                          onClick={() => {
+                            if (typeof setIsShow === 'function') setIsShow(prev => false);
+                            if (typeof setSelectedDate === 'function') {
+                              setSelectedDate(prev => {
+                                if (prev === undefined) return undefined;
+                                const luxonObj = DateTime.fromJSDate(item.date);
+                                return luxonObj.set({ hour: prev.getHours(), minute: prev.getMinutes(), second: prev.getSeconds() }).toJSDate();
+                              });
+                            }
+                            if (typeof onValueChange === 'function') onValueChange(DateTime.fromJSDate(item.date).toFormat(outputFormat));
+                          }}>
+                          { item.dayInfo.day }
+                          {
+                            item.isToday ? 
+                            <>
+                              <span className={styles['today-symbol']}></span>
+                            </>
+                            : null
+                          }
+                        </div>
+                      );
+                    })
+                  }
                 </div>
               </div>
-              <div className={styles['day-row']}>
-                <div>
-                  일
+              <div 
+                className={[
+                  styles['times-area'],
+                  pickTypes.includes('time') ? styles['show'] : '',
+                ].join(' ')}>
+                <div className={styles['time-block']}>
+                  <select 
+                    className={styles['select-box']} 
+                    value={selectedDate?.getHours().toString().padStart(2, '0')}
+                    onChange={(event) => {
+                      const _value = event.target.value;
+                      setSelectedDate(prev => {
+                        if (prev === undefined) return undefined;
+                        const luxonObj = DateTime.fromJSDate(prev).set({ hour: Number(_value) });
+                        return luxonObj.toJSDate();
+                      });
+                    }}
+                    >
+                    {
+                      Array.from({ length: 24 }).map((item, index) => {
+                        return (
+                          <option
+                            key={index}>
+                            { index.toString().padStart(2, '0') }
+                          </option>
+                        );
+                      })
+                    }
+                  </select>
+                  <span>시</span>
+                </div>  
+                <div className={styles['time-block']}>
+                  <select 
+                    className={styles['select-box']} 
+                    value={selectedDate?.getMinutes().toString().padStart(2, '0')}
+                    onChange={(event) => {
+                      const _value = event.target.value;
+                      setSelectedDate(prev => {
+                        if (prev === undefined) return undefined;
+                        const luxonObj = DateTime.fromJSDate(prev).set({ minute: Number(_value) });
+                        return luxonObj.toJSDate();
+                      });
+                    }}
+                    >
+                    {
+                      Array.from({ length: 60 }).map((item, index) => {
+                        return (
+                          <option
+                            key={index}>
+                            { index.toString().padStart(2, '0') }
+                          </option>
+                        );
+                      })
+                    }
+                  </select>
+                  <span>분</span>
                 </div>
-                <div>
-                  월
+                <div 
+                  className={[
+                    styles['time-block'],
+                    !isTimeAllowSecondPick ? styles['hidden'] : '',
+                  ].join(' ')}>
+                  <select 
+                    className={styles['select-box']} 
+                    value={selectedDate?.getSeconds().toString().padStart(2, '0')}
+                    onChange={(event) => {
+                      const _value = event.target.value;
+                      setSelectedDate(prev => {
+                        if (prev === undefined) return undefined;
+                        const luxonObj = DateTime.fromJSDate(prev).set({ second: Number(_value) });
+                        return luxonObj.toJSDate();
+                      });
+                    }}
+                    >
+                    {
+                      Array.from({ length: 60 }).map((item, index) => {
+                        return (
+                          <option
+                            key={index}>
+                            { index.toString().padStart(2, '0') }
+                          </option>
+                        );
+                      })
+                    }
+                  </select>
+                  <span>초</span>
                 </div>
-                <div>
-                  화
-                </div>
-                <div>
-                  수
-                </div>
-                <div>
-                  목
-                </div>
-                <div>
-                  금
-                </div>
-                <div>
-                  토
-                </div>
-              </div>
-              <div className={styles['dates-area']}>
-                {
-                  currentCalendarInfo?.dayItems.map(item => {
-                    return (
-                      <div key={item.yyyymmdd}
-                        className={[
-                          item.isSelected ? styles['selected'] : '',
-                          !item.isIncludeCurrentMonth ? styles['prev-or-next-month-date'] : '',
-                        ].join(' ')}
-                        onClick={() => {
-                          if (typeof setIsShow === 'function') setIsShow(prev => false);
-                          if (typeof setSelectedDateObj === 'function') setSelectedDateObj(item.date);
-                          if (typeof onSelect === 'function') onSelect(item.date, DateTime.fromJSDate(item.date).toFormat(outputFormat));
-                        }}>
-                        { item.dayInfo.day }
-                        {
-                          item.isToday ? 
-                          <>
-                            <span className={styles['today-symbol']}></span>
-                          </>
-                          : null
-                        }
-                      </div>
-                    );
-                  })
-                }
               </div>
             </div>
           </div>
