@@ -272,10 +272,22 @@ export function DatePicker(props: IDatePicker.Props) {
         const startValueConvertInfo = getConvertInfo(startValue);
         const endValueConvertInfo = getConvertInfo(endValue);
 
-        setSelectedRangeDateProxy({
-          start: startValueConvertInfo.date,
-          end: endValueConvertInfo.date,
-        });
+        let startDate = startValueConvertInfo.date;
+        let endDate = endValueConvertInfo.date;
+
+        const rangeDate: IDatePicker.RangeDate = {
+          start: startDate,
+          end: endDate,
+        };
+
+        if (rangeDate.start !== undefined && rangeDate.end !== undefined) {
+          if (rangeDate.start.getTime() > rangeDate.end.getTime()) {
+            rangeDate.start = rangeDate.end;
+            if (typeof onValueChange === 'function') onValueChange(getRangeInputValue(rangeDate));
+          }
+        }
+
+        setSelectedRangeDateProxy(rangeDate);
       }
     };
 
@@ -831,26 +843,58 @@ export function DatePicker(props: IDatePicker.Props) {
                             }
 
                             if (rangeType === 'single') {
-                              if (typeof setIsShow === 'function') setIsShow(prev => false);
+                              // if (direction?.isFull === true) {
+                              //   if (typeof setIsShow === 'function') setIsShow(prev => false);
+                              // }
                               if (selectedDate === undefined) {
-                                setSelectedDateProxy(undefined);  
+                                setSelectedDateProxy(DateTime.fromJSDate(item.date).set({ hour: 0, minute: 0, second: 0, millisecond: 0 }).toJSDate());  
+                                if (typeof onValueChange === 'function') onValueChange(``);
                               } else {
                                 setSelectedDateProxy(DateTime.fromJSDate(item.date).set({ hour: selectedDate?.getHours(), minute: selectedDate?.getMinutes(), second: selectedDate?.getSeconds() }).toJSDate());
+                                if (typeof onValueChange === 'function') onValueChange(DateTime.fromJSDate(item.date).toFormat(outputFormat));
                               }
-                              if (typeof onValueChange === 'function') onValueChange(DateTime.fromJSDate(item.date).toFormat(outputFormat));
                             }
 
                             if (rangeType === 'range') {
-                              // if (typeof setIsShow === 'function') setIsShow(prev => false);
+                              // if (direction?.isFull === true) {
+                              //   if (typeof setIsShow === 'function') setIsShow(prev => false);
+                              // }
                               if (selectedRangeDate === undefined) {
-                                setSelectedRangeDateProxy(undefined);
+                                if (rangeDateControlTarget === 'start') {
+                                  const start: Date = DateTime.now().set({ year: item.dayInfo.year, month: item.dayInfo.month, day: item.dayInfo.day, hour: 0, minute: 0, second: 0, millisecond: 0 }).toJSDate();
+                                  const newSelectedRangeDate = {
+                                    start,
+                                    end: undefined,
+                                  };
+                                  setSelectedRangeDateProxy(newSelectedRangeDate);
+                                  if (typeof onValueChange === 'function') onValueChange(getRangeInputValue(newSelectedRangeDate));
+                                }
+                                if (rangeDateControlTarget === 'end') {
+                                  const end: Date = DateTime.now().set({ year: item.dayInfo.year, month: item.dayInfo.month, day: item.dayInfo.day, hour: 0, minute: 0, second: 0, millisecond: 0 }).toJSDate();
+                                  const newSelectedRangeDate = {
+                                    start: undefined,
+                                    end,
+                                  };
+                                  setSelectedRangeDateProxy(newSelectedRangeDate);
+                                  if (typeof onValueChange === 'function') onValueChange(getRangeInputValue(newSelectedRangeDate));
+                                }
                               } else {
                                 let newSelectedRangeDate: IDatePicker.RangeDate | undefined;
                                 if (rangeDateControlTarget === 'start') {
                                   let start: Date | undefined = undefined;
                                   if (selectedRangeDate.start !== undefined) {
                                     start = DateTime.fromJSDate(selectedRangeDate.start).set({ year: item.dayInfo.year, month: item.dayInfo.month, day: item.dayInfo.day }).toJSDate();
+                                  } else {
+                                    start = DateTime.now().set({ year: item.dayInfo.year, month: item.dayInfo.month, day: item.dayInfo.day, hour: 0, minute: 0, second: 0, millisecond: 0 }).toJSDate();
                                   }
+
+                                  if (selectedRangeDate.end !== undefined) {
+                                    if (selectedRangeDate.end.getTime() < start.getTime()) {
+                                      console.error(`시작 날짜는 종료 날짜보다 이후가 될 수 없습니다.`);
+                                      return;
+                                    }
+                                  }
+
                                   newSelectedRangeDate = {
                                     start,
                                     end: selectedRangeDate.end,
@@ -860,14 +904,23 @@ export function DatePicker(props: IDatePicker.Props) {
                                   let end: Date | undefined = undefined;
                                   if (selectedRangeDate.end !== undefined) {
                                     end = DateTime.fromJSDate(selectedRangeDate.end).set({ year: item.dayInfo.year, month: item.dayInfo.month, day: item.dayInfo.day }).toJSDate();
+                                  } else {
+                                    end = DateTime.now().set({ year: item.dayInfo.year, month: item.dayInfo.month, day: item.dayInfo.day, hour: 0, minute: 0, second: 0, millisecond: 0 }).toJSDate();
                                   }
+
+                                  if (selectedRangeDate.start !== undefined) {
+                                    if (selectedRangeDate.start.getTime() > end.getTime()) {
+                                      console.error(`종료 날짜는 시작 날짜보다 이전이 될 수 없습니다.`);
+                                      return;
+                                    }
+                                  }
+
                                   newSelectedRangeDate = {
                                     start: selectedRangeDate.start,
                                     end,
                                   };
                                   setSelectedRangeDateProxy(newSelectedRangeDate);
                                 }
-
                                 if (typeof onValueChange === 'function') onValueChange(getRangeInputValue(newSelectedRangeDate));
                               }
                             }

@@ -67,6 +67,11 @@ export declare namespace IDatePicker {
     end: Date | undefined;
   }
 
+  export interface AllowSelectDates {
+    startDate?: Date;
+    endDate?: Date;
+  }
+
   export interface Props {
     inputSelector?: InputSelector;
     pickType: PickType;
@@ -85,14 +90,11 @@ export declare namespace IDatePicker {
     setIsShow: Dispatch<SetStateAction<boolean>>;
 
     // onSelect?: (date: Date | undefined, outputString: string) => void;
-    onValueChange?: (value: string) => void;
+    onValueChange: (value: string) => void;
     
     outputFormat?: string;
       
-    allowSelectDates?: {
-      startDate?: Date;
-      endDate?: Date;
-    };
+    allowSelectDates?: AllowSelectDates;
     width?: number;
   }
 

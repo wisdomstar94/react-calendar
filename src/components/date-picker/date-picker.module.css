@@ -248,14 +248,14 @@
 .date-picker-contaienr .date-picker .times-area .time-block {
   display: inline-flex;
   flex-wrap: wrap;
-  margin-right: 6px;
+  margin-left: 6px;
   align-items: center;
   justify-content: flex-start;
   font-size: 12px;
   color: #222;
 }
-.date-picker-contaienr .date-picker .times-area .time-block:last-child {
-  margin-right: 0;
+.date-picker-contaienr .date-picker .times-area .time-block:first-child {
+  margin-left: 0;
 }
 .date-picker-contaienr .date-picker .times-area .time-block .select-box {
   display: inline-flex;
