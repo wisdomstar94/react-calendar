@@ -71,8 +71,8 @@ export default function Page() {
           ref: inputRef,
           isMatchInputWidth: true,
         }}
-        pickType="month"
-        timeType="hour-minute-second"
+        pickType="datetime"
+        timeType="hour"
         rangeType="range"
         isShow={isShow}
         setIsShow={setIsShow}
@@ -84,7 +84,7 @@ export default function Page() {
           startDate: new Date('2023-03-03'),
           endDate: new Date('2023-10-08'),
         }}
-        // outputFormat="yyyy-MM-dd HH:00"
+        outputFormat="yyyy-MM-dd HH:00"
         onValueChange={(value) => {
           setValue(value);
         }}

@@ -1106,7 +1106,7 @@ function RangeItemContainer(props: IDatePicker.RangeItemContainerProps) {
             className={[
               styles['time-block'],
               styles['minute-block'],
-              Array.from<IDatePicker.TimeType>(['hour-minute', 'hour-minute-second']).includes(timeType ?? '') ? '' : styles['hidden'],
+              // Array.from<IDatePicker.TimeType>(['hour-minute', 'hour-minute-second']).includes(timeType ?? '') ? '' : styles['hidden'],
             ].join(' ')}>
             <select 
               className={styles['select-box']} 
@@ -1156,7 +1156,7 @@ function RangeItemContainer(props: IDatePicker.RangeItemContainerProps) {
             className={[
               styles['time-block'],
               styles['second-block'],
-              Array.from<IDatePicker.TimeType>(['hour-minute-second']).includes(timeType ?? '') ? '' : styles['hidden'],
+              // Array.from<IDatePicker.TimeType>(['hour-minute-second']).includes(timeType ?? '') ? '' : styles['hidden'],
             ].join(' ')}>
             <select 
               className={styles['select-box']} 

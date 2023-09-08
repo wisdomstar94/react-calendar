@@ -356,7 +356,7 @@
 .range-item-container.month .time-unit-list .minute-block {
 
 }
-.range-item-container.month .time-unit-list .minute-block {
+.range-item-container.month .time-unit-list .second-block {
 
 }
 
@@ -371,13 +371,13 @@
   display: none;
 }
 .range-item-container.date .time-unit-list .hour-block {
-
+  display: none;
 }
 .range-item-container.date .time-unit-list .minute-block {
-
+  display: none;
 }
-.range-item-container.date .time-unit-list .minute-block {
-
+.range-item-container.date .time-unit-list .second-block {
+  display: none;
 }
 
 /* layoutType: datetime-hour */
@@ -396,7 +396,7 @@
 .range-item-container.datetime-hour .time-unit-list .minute-block {
   display: none;
 }
-.range-item-container.datetime-hour .time-unit-list .minute-block {
+.range-item-container.datetime-hour .time-unit-list .second-block {
   display: none;
 }
 
@@ -416,7 +416,7 @@
 .range-item-container.datetime-hour-minute .time-unit-list .minute-block {
   display: inline-flex;
 }
-.range-item-container.datetime-hour-minute .time-unit-list .minute-block {
+.range-item-container.datetime-hour-minute .time-unit-list .second-block {
   display: none;
 }
 
@@ -436,7 +436,7 @@
 .range-item-container.datetime-hour-minute-second .time-unit-list .minute-block {
   display: inline-flex;
 }
-.range-item-container.datetime-hour-minute-second .time-unit-list .minute-block {
+.range-item-container.datetime-hour-minute-second .time-unit-list .second-block {
   display: inline-flex;
 }
 
@@ -456,7 +456,7 @@
 .range-item-container.time-hour .time-unit-list .minute-block {
   display: none;
 }
-.range-item-container.time-hour .time-unit-list .minute-block {
+.range-item-container.time-hour .time-unit-list .second-block {
   display: none;
 }
 
@@ -476,7 +476,7 @@
 .range-item-container.time-hour-minute .time-unit-list .minute-block {
   display: inline-flex;
 }
-.range-item-container.time-hour-minute .time-unit-list .minute-block {
+.range-item-container.time-hour-minute .time-unit-list .second-block {
   display: none;
 }
 
@@ -496,6 +496,6 @@
 .range-item-container.time-hour-minute-second .time-unit-list .minute-block {
   display: inline-flex;
 }
-.range-item-container.time-hour-minute-second .time-unit-list .minute-block {
+.range-item-container.time-hour-minute-second .time-unit-list .second-block {
   display: inline-flex;
 }
