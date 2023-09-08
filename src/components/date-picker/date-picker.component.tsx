@@ -264,6 +264,12 @@ export function DatePicker(props: IDatePicker.Props) {
       let myValue = _value;
       if (pickType === 'time') {
         myValue = `2023-09-09 ` + myValue;
+      } else if (pickType === 'month') {
+        const myValueSplit = myValue.split(' ');
+        const firstString = myValue.split(' ')[0];
+        if (myValueSplit.length === 1 && firstString.length === 7) {
+          myValue += '-01';
+        }
       }
       const luxonObj = DateTime.fromSQL(myValue);
       isValid = luxonObj.isValid;
@@ -878,7 +884,14 @@ export function DatePicker(props: IDatePicker.Props) {
                                   let start: Date | undefined = undefined;
                                   if (selectedRangeDate.start !== undefined) {
                                     start = DateTime.fromJSDate(selectedRangeDate.start).set({ year: date.getFullYear(), month: date.getMonth() + 1 }).toJSDate();
+                                    if (selectedRangeDate.end !== undefined) {
+                                      if (start.getTime() > selectedRangeDate.end.getTime()) {
+                                        console.error(`시작 월은 종료 월보다 이후일 수 없습니다.`);
+                                        return;
+                                      }
+                                    }
                                   }
+
                                   newSelectedRangeDate = {
                                     start,
                                     end: selectedRangeDate.end,
@@ -888,6 +901,12 @@ export function DatePicker(props: IDatePicker.Props) {
                                   let end: Date | undefined = undefined;
                                   if (selectedRangeDate.end !== undefined) {
                                     end = DateTime.fromJSDate(selectedRangeDate.end).set({ year: date.getFullYear(), month: date.getMonth() + 1 }).toJSDate();
+                                    if (selectedRangeDate.start !== undefined) {
+                                      if (selectedRangeDate.start.getTime() > end.getTime()) {
+                                        console.error(`종료 월은 시작 월보다 이전일 수 없습니다.`);
+                                        return;
+                                      }
+                                    }
                                   }
                                   newSelectedRangeDate = {
                                     start: selectedRangeDate.start,
