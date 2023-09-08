@@ -25,11 +25,11 @@ export default function Page() {
     if (init === false) return;
 
     setSelectedRangeDate({
-      start: new Date(`2023-09-04 02:02:02`),
+      start: new Date(`2023-02-04 02:02:02`),
       end: new Date(`2023-09-22 11:12:03`),
     });
 
-    // setSelectedDate(new Date(`2023-09-04`));
+    setSelectedDate(new Date(`2023-09-04 03:44:55`));
 
     // setTimeout(() => {
     //   setSelectedRangeDate({
@@ -52,16 +52,25 @@ export default function Page() {
           setSelectedRangeDate={setSelectedRangeDate} 
           isMatchInputWidth={true} 
           rangeType="range"
-          pickType={"datetime"} 
+          pickType={"month"} 
           timeType="hour"
-          outputFormat="yyyy-MM-dd HH:00"
+          // outputFormat="yyyy-MM-dd HH:00"
           defaultValues={{
+            isForce: true,
             range: {
               start: {
-                hour: 0, minute: 0, second: 0, millisecond: 0,
+                day: 1,
+                hour: 0, 
+                // minute: 0, 
+                second: 0, 
+                millisecond: 0,
               },
               end: {
-                hour: 23, minute: 59, second: 59, millisecond: 999,
+                day: 'last-of-month',
+                hour: 23, 
+                // minute: 59, 
+                second: 59, 
+                millisecond: 999,
               },
             },
           }}
@@ -80,8 +89,13 @@ export default function Page() {
           pickType={"datetime"} 
           timeType="hour-minute-second"
           defaultValues={{
+            isForce: true,
             single: {
-              hour: 0, minute: 0, second: 0, millisecond: 0,
+              day: 'last-of-month',
+              hour: 0, 
+              // minute: 0, 
+              second: 0, 
+              millisecond: 0,
             },
           }}
           // outputFormat="yyyy-MM-dd HH:00"

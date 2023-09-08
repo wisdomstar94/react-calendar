@@ -34,23 +34,23 @@ export function DatePicker(props: IDatePicker.Props) {
 
   const isDefaultValuesForce = useMemo(() => defaultValues?.isForce ?? false, [defaultValues?.isForce]);
 
-  const singleDefaultValueDay = useMemo(() => defaultValues?.single?.day ?? 0, [defaultValues?.single?.day]);
-  const singleDefaultValueHour = useMemo(() => defaultValues?.single?.hour ?? 0, [defaultValues?.single?.hour]);
-  const singleDefaultValueMinute = useMemo(() => defaultValues?.single?.minute ?? 0, [defaultValues?.single?.minute]);
-  const singleDefaultValueSecond = useMemo(() => defaultValues?.single?.second ?? 0, [defaultValues?.single?.second]);
-  const singleDefaultValueMillisecond = useMemo(() => defaultValues?.single?.millisecond ?? 0, [defaultValues?.single?.millisecond]);
+  const singleDefaultValueDay = useMemo(() => defaultValues?.single?.day, [defaultValues?.single?.day]);
+  const singleDefaultValueHour = useMemo(() => defaultValues?.single?.hour, [defaultValues?.single?.hour]);
+  const singleDefaultValueMinute = useMemo(() => defaultValues?.single?.minute, [defaultValues?.single?.minute]);
+  const singleDefaultValueSecond = useMemo(() => defaultValues?.single?.second, [defaultValues?.single?.second]);
+  const singleDefaultValueMillisecond = useMemo(() => defaultValues?.single?.millisecond, [defaultValues?.single?.millisecond]);
 
-  const rangeStartDefaultValueDay = useMemo(() => defaultValues?.range?.start?.day ?? 0, [defaultValues?.range?.start?.day]);
-  const rangeStartDefaultValueHour = useMemo(() => defaultValues?.range?.start?.hour ?? 0, [defaultValues?.range?.start?.hour]);
-  const rangeStartDefaultValueMinute = useMemo(() => defaultValues?.range?.start?.minute ?? 0, [defaultValues?.range?.start?.minute]);
-  const rangeStartDefaultValueSecond = useMemo(() => defaultValues?.range?.start?.second ?? 0, [defaultValues?.range?.start?.second]);
-  const rangeStartDefaultValueMillisecond = useMemo(() => defaultValues?.range?.start?.millisecond ?? 0, [defaultValues?.range?.start?.millisecond]);
+  const rangeStartDefaultValueDay = useMemo(() => defaultValues?.range?.start?.day, [defaultValues?.range?.start?.day]);
+  const rangeStartDefaultValueHour = useMemo(() => defaultValues?.range?.start?.hour, [defaultValues?.range?.start?.hour]);
+  const rangeStartDefaultValueMinute = useMemo(() => defaultValues?.range?.start?.minute, [defaultValues?.range?.start?.minute]);
+  const rangeStartDefaultValueSecond = useMemo(() => defaultValues?.range?.start?.second, [defaultValues?.range?.start?.second]);
+  const rangeStartDefaultValueMillisecond = useMemo(() => defaultValues?.range?.start?.millisecond, [defaultValues?.range?.start?.millisecond]);
 
-  const rangeEndDefaultValueDay = useMemo(() => defaultValues?.range?.end?.day ?? 0, [defaultValues?.range?.end?.day]);
-  const rangeEndDefaultValueHour = useMemo(() => defaultValues?.range?.end?.hour ?? 0, [defaultValues?.range?.end?.hour]);
-  const rangeEndDefaultValueMinute = useMemo(() => defaultValues?.range?.end?.minute ?? 0, [defaultValues?.range?.end?.minute]);
-  const rangeEndDefaultValueSecond = useMemo(() => defaultValues?.range?.end?.second ?? 0, [defaultValues?.range?.end?.second]);
-  const rangeEndDefaultValueMillisecond = useMemo(() => defaultValues?.range?.end?.millisecond ?? 0, [defaultValues?.range?.end?.millisecond]);
+  const rangeEndDefaultValueDay = useMemo(() => defaultValues?.range?.end?.day, [defaultValues?.range?.end?.day]);
+  const rangeEndDefaultValueHour = useMemo(() => defaultValues?.range?.end?.hour, [defaultValues?.range?.end?.hour]);
+  const rangeEndDefaultValueMinute = useMemo(() => defaultValues?.range?.end?.minute, [defaultValues?.range?.end?.minute]);
+  const rangeEndDefaultValueSecond = useMemo(() => defaultValues?.range?.end?.second, [defaultValues?.range?.end?.second]);
+  const rangeEndDefaultValueMillisecond = useMemo(() => defaultValues?.range?.end?.millisecond, [defaultValues?.range?.end?.millisecond]);
 
   const rangeType = useMemo<IDatePicker.RangeType>(() => props.rangeType ?? 'single', [props.rangeType]);
   const rangeDivideString = useMemo(() => props.rangeDivideString ?? '~', [props.rangeDivideString]);
@@ -441,7 +441,12 @@ export function DatePicker(props: IDatePicker.Props) {
     if (systemOutputFormat === 'yyyy-MM-dd') {
       luxonObj = luxonObj.set({ hour: singleDefaultValueHour, minute: singleDefaultValueMinute, second: singleDefaultValueSecond, millisecond: singleDefaultValueMillisecond });
     } else if (systemOutputFormat === 'yyyy-MM') {
-      luxonObj = luxonObj.set({ day: singleDefaultValueDay, hour: singleDefaultValueHour, minute: singleDefaultValueMinute, second: singleDefaultValueSecond, millisecond: singleDefaultValueMillisecond });
+      if (singleDefaultValueDay === 'last-of-month') {
+        luxonObj = luxonObj.endOf('month').set({ hour: luxonObj.hour, minute: luxonObj.minute, second: luxonObj.second, millisecond: luxonObj.millisecond });
+      } else {
+        luxonObj = luxonObj.set({ day: singleDefaultValueDay });
+      }
+      luxonObj = luxonObj.set({ hour: singleDefaultValueHour, minute: singleDefaultValueMinute, second: singleDefaultValueSecond, millisecond: singleDefaultValueMillisecond });
     } else if (systemOutputFormat === 'yyyy-MM-dd HH') {
       luxonObj = luxonObj.set({ minute: singleDefaultValueMinute, second: singleDefaultValueSecond, millisecond: singleDefaultValueMillisecond });
     } else if (systemOutputFormat === 'yyyy-MM-dd HH:mm') {
@@ -468,7 +473,13 @@ export function DatePicker(props: IDatePicker.Props) {
       if (systemOutputFormat === 'yyyy-MM-dd') {
         startLuxonObj = startLuxonObj.set({ hour: rangeStartDefaultValueHour, minute: rangeStartDefaultValueMinute, second: rangeStartDefaultValueSecond, millisecond: rangeStartDefaultValueMillisecond });
       } else if (systemOutputFormat === 'yyyy-MM') {
-        startLuxonObj = startLuxonObj.set({ day: rangeStartDefaultValueDay, hour: rangeStartDefaultValueHour, minute: rangeStartDefaultValueMinute, second: rangeStartDefaultValueSecond, millisecond: rangeStartDefaultValueMillisecond });
+        if (rangeStartDefaultValueDay === 'last-of-month') {
+          startLuxonObj = startLuxonObj.endOf('month').set({ hour: startLuxonObj.hour, minute: startLuxonObj.minute, second: startLuxonObj.second, millisecond: startLuxonObj.millisecond });
+        } else {
+          startLuxonObj = startLuxonObj.set({ day: rangeStartDefaultValueDay });
+        }
+
+        startLuxonObj = startLuxonObj.set({ hour: rangeStartDefaultValueHour, minute: rangeStartDefaultValueMinute, second: rangeStartDefaultValueSecond, millisecond: rangeStartDefaultValueMillisecond });
       } else if (systemOutputFormat === 'yyyy-MM-dd HH') {
         startLuxonObj = startLuxonObj.set({ minute: rangeStartDefaultValueMinute, second: rangeStartDefaultValueSecond, millisecond: rangeStartDefaultValueMillisecond });
       } else if (systemOutputFormat === 'yyyy-MM-dd HH:mm') {
@@ -480,7 +491,13 @@ export function DatePicker(props: IDatePicker.Props) {
       if (systemOutputFormat === 'yyyy-MM-dd') {
         endLuxonObj = endLuxonObj.set({ hour: rangeEndDefaultValueHour, minute: rangeEndDefaultValueMinute, second: rangeEndDefaultValueSecond, millisecond: rangeEndDefaultValueMillisecond });
       } else if (systemOutputFormat === 'yyyy-MM') {
-        endLuxonObj = endLuxonObj.set({ day: rangeEndDefaultValueDay, hour: rangeEndDefaultValueHour, minute: rangeEndDefaultValueMinute, second: rangeEndDefaultValueSecond, millisecond: rangeEndDefaultValueMillisecond });
+        if (rangeEndDefaultValueDay === 'last-of-month') {
+          endLuxonObj = endLuxonObj.endOf('month').set({ hour: endLuxonObj.hour, minute: endLuxonObj.minute, second: endLuxonObj.second, millisecond: endLuxonObj.millisecond });
+        } else {
+          endLuxonObj = endLuxonObj.set({ day: rangeEndDefaultValueDay });
+        }
+
+        endLuxonObj = endLuxonObj.set({ hour: rangeEndDefaultValueHour, minute: rangeEndDefaultValueMinute, second: rangeEndDefaultValueSecond, millisecond: rangeEndDefaultValueMillisecond });
       } else if (systemOutputFormat === 'yyyy-MM-dd HH') {
         endLuxonObj = endLuxonObj.set({ minute: rangeEndDefaultValueMinute, second: rangeEndDefaultValueSecond, millisecond: rangeEndDefaultValueMillisecond });
       } else if (systemOutputFormat === 'yyyy-MM-dd HH:mm') {
@@ -489,6 +506,92 @@ export function DatePicker(props: IDatePicker.Props) {
     }
 
     if (typeof setSelectedRangeDate === 'function') setSelectedRangeDate(prev => ({ start: startLuxonObj?.toJSDate(), end: endLuxonObj?.toJSDate() }));
+  }
+
+  function getApplyForceDefaultValue(
+    selectedDate: Date | undefined,
+    defaultValueDay: IDatePicker.SingleDefaultDay | undefined,
+    defaultValueHour: number | undefined,
+    defaultValueMinute: number | undefined,
+    defaultValueSecond: number | undefined,
+    defaultValueMillisecond: number | undefined,
+  ) {
+    if (selectedDate === undefined) return undefined;
+
+    let assingDefaultCount = 0;
+    if (defaultValueDay !== undefined) assingDefaultCount++;
+    if (defaultValueHour !== undefined) assingDefaultCount++;
+    if (defaultValueMinute !== undefined) assingDefaultCount++;
+    if (defaultValueSecond !== undefined) assingDefaultCount++;
+    if (defaultValueMillisecond !== undefined) assingDefaultCount++;
+
+    let passCount = 0;
+    
+    if (defaultValueDay !== undefined) {
+      if (defaultValueDay === 'last-of-month') {
+        if (selectedDate.getDate() === DateTime.fromJSDate(selectedDate).endOf('month').day) {
+          passCount++;  
+        }
+      } else {
+        if (selectedDate.getDate() === defaultValueDay) {
+          passCount++;  
+        }
+      }
+    } 
+
+    if (defaultValueHour !== undefined) {
+      if (selectedDate.getHours() === defaultValueHour) {
+        passCount++;  
+      }
+    } 
+
+    if (defaultValueMinute !== undefined) {
+      if (selectedDate.getMinutes() === defaultValueMinute) {
+        passCount++;  
+      }
+    } 
+
+    if (defaultValueSecond !== undefined) {
+      if (selectedDate.getSeconds() === defaultValueSecond) {
+        passCount++;  
+      }
+    } 
+
+    if (defaultValueMillisecond !== undefined) {
+      if (selectedDate.getMilliseconds() === defaultValueMillisecond) {
+        passCount++;  
+      }
+    } 
+
+    if (passCount < assingDefaultCount) {
+      let luxonObj = DateTime.fromJSDate(selectedDate);
+      if (defaultValueDay === 'last-of-month') {
+        luxonObj = luxonObj.endOf('month').set({
+          hour: luxonObj.hour, 
+          minute: luxonObj.minute,
+          second: luxonObj.second,
+          millisecond: luxonObj.millisecond,
+        }).set({
+          hour: defaultValueHour, 
+          minute: defaultValueMinute,
+          second: defaultValueSecond,
+          millisecond: defaultValueMillisecond,
+        });
+      } else {
+        luxonObj = luxonObj.set({ 
+          day: defaultValueDay, 
+          hour: defaultValueHour, 
+          minute: defaultValueMinute,
+          second: defaultValueSecond,
+          millisecond: defaultValueMillisecond,
+        });
+      }
+
+      const newDate = luxonObj.toJSDate();
+      return newDate;
+    } 
+
+    return undefined;
   }
 
   useEffect(() => {
@@ -610,6 +713,14 @@ export function DatePicker(props: IDatePicker.Props) {
     } else {
       setCurrentCalendarInfo(calendar.getDayCalendarInfo(selectedDate, selectedDate));
       if (typeof onValueChange === 'function' && isApplyValue()) onValueChange(DateTime.fromJSDate(selectedDate).toFormat(outputFormat));
+
+      if (isDefaultValuesForce) {
+        const newDate = getApplyForceDefaultValue(selectedDate, singleDefaultValueDay, singleDefaultValueHour, singleDefaultValueMinute, singleDefaultValueSecond, singleDefaultValueMillisecond);
+        if (newDate !== undefined) {
+          setSelectedDateProxy(newDate);
+          if (typeof onValueChange === 'function' && isApplyValue()) onValueChange(DateTime.fromJSDate(newDate).toFormat(outputFormat));
+        }
+      }
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selectedDate, rangeType]);
@@ -633,6 +744,22 @@ export function DatePicker(props: IDatePicker.Props) {
       setCurrentCalendarInfo(calendar.getDayCalendarInfo((selectedRangeDate.start ?? selectedRangeDate.end) ?? new Date(), selectedRangeDate));
       if (typeof onValueChange === 'function' && isApplyValue()) {
         onValueChange(getRangeInputValue(selectedRangeDate));
+      }
+
+      if (isDefaultValuesForce) {
+        const newStartDate = getApplyForceDefaultValue(selectedRangeDate.start, rangeStartDefaultValueDay, rangeStartDefaultValueHour, rangeStartDefaultValueMinute, rangeStartDefaultValueSecond, rangeStartDefaultValueMillisecond);
+        const newEndDate = getApplyForceDefaultValue(selectedRangeDate.end, rangeEndDefaultValueDay, rangeEndDefaultValueHour, rangeEndDefaultValueMinute, rangeEndDefaultValueSecond, rangeEndDefaultValueMillisecond);
+
+        if (newStartDate !== undefined || newEndDate !== undefined) {
+          const newRangeDate: IDatePicker.RangeDate = {
+            start: newStartDate === undefined ? selectedRangeDate.start : newStartDate,
+            end: newEndDate === undefined ? selectedRangeDate.end : newEndDate,
+          };
+          setSelectedRangeDateProxy(newRangeDate);
+          if (typeof onValueChange === 'function' && isApplyValue()) {
+            onValueChange(getRangeInputValue(newRangeDate));
+          }
+        }
       }
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps

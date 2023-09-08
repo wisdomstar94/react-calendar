@@ -72,8 +72,10 @@ export declare namespace IDatePicker {
     endDate?: Date;
   }
 
+  export type SingleDefaultDay = number | 'last-of-month';
+
   export interface SingleDefaultValues {
-    day?: number;
+    day?: SingleDefaultDay;
     hour?: number;
     minute?: number;
     second?: number;

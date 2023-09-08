@@ -1,6 +1,6 @@
 {
   "name": "@wisdomstar94/react-calendar",
-  "version": "0.0.7",
+  "version": "0.0.8",
   "private": false,
   "scripts": {
     "dev": "next dev -p 3330",
