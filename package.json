@@ -1,6 +1,13 @@
 {
   "name": "@wisdomstar94/react-calendar",
-  "version": "0.0.19",
+  "version": "0.0.20",
+  "keywords": [
+    "react",
+    "date-picker",
+    "date",
+    "picker",
+    "calendar"
+  ],
   "private": false,
   "scripts": {
     "dev": "next dev -p 3330",

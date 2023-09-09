@@ -327,7 +327,7 @@ export function DatePicker(props: IDatePicker.Props) {
     }
     
     const disposeRange = () => {
-      const valueSplit = value.split('~');
+      const valueSplit = value.split(rangeDivideString);
       if (valueSplit.length === 2) {
         const startValue = valueSplit[0].trim();
         const endValue = valueSplit[1].trim();
