@@ -1195,6 +1195,7 @@ export function DatePicker(props: IDatePicker.Props) {
                     styles['time-block'],
                     Array.from<IDatePicker.TimeType>(['hour', 'hour-minute', 'hour-minute-second']).includes(timeType ?? '') ? '' : styles['hidden'],
                   ].join(' ')}>
+                  <SelectBoxArrowIcon />
                   <select 
                     className={styles['select-box']} 
                     value={selectedDate?.getHours().toString().padStart(2, '0')}
@@ -1225,6 +1226,7 @@ export function DatePicker(props: IDatePicker.Props) {
                     styles['time-block'],
                     Array.from<IDatePicker.TimeType>(['hour-minute', 'hour-minute-second']).includes(timeType ?? '') ? '' : styles['hidden'],
                   ].join(' ')}>
+                  <SelectBoxArrowIcon />
                   <select 
                     className={styles['select-box']} 
                     value={selectedDate?.getMinutes().toString().padStart(2, '0')}
@@ -1255,6 +1257,7 @@ export function DatePicker(props: IDatePicker.Props) {
                     styles['time-block'],
                     Array.from<IDatePicker.TimeType>(['hour-minute-second']).includes(timeType ?? '') ? '' : styles['hidden'],
                   ].join(' ')}>
+                  <SelectBoxArrowIcon />
                   <select 
                     className={styles['select-box']} 
                     value={selectedDate?.getSeconds().toString().padStart(2, '0')}
@@ -1288,6 +1291,15 @@ export function DatePicker(props: IDatePicker.Props) {
       }      
       <div className=""></div>
     </>
+  );
+}
+
+function SelectBoxArrowIcon() {
+  return (
+    <svg xmlns="http://www.w3.org/2000/svg" className={styles['select-box-arrow-icon']} width="14" height="14" viewBox="0 0 24 24" strokeWidth="2" stroke="currentColor" fill="none" strokeLinecap="round" strokeLinejoin="round">
+      <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+      <path d="M6 10l6 6l6 -6h-12"></path>
+    </svg>
   );
 }
 
@@ -1368,6 +1380,7 @@ function RangeItemContainer(props: IDatePicker.RangeItemContainerProps) {
               styles['time-block'],
               styles['hour-block'],
             ].join(' ')}>
+            <SelectBoxArrowIcon />
             <select 
               className={styles['select-box']} 
               value={selectedDate?.getHours().toString().padStart(2, '0')}
@@ -1418,6 +1431,7 @@ function RangeItemContainer(props: IDatePicker.RangeItemContainerProps) {
               styles['minute-block'],
               // Array.from<IDatePicker.TimeType>(['hour-minute', 'hour-minute-second']).includes(timeType ?? '') ? '' : styles['hidden'],
             ].join(' ')}>
+            <SelectBoxArrowIcon />
             <select 
               className={styles['select-box']} 
               value={selectedDate?.getMinutes().toString().padStart(2, '0')}
@@ -1468,6 +1482,7 @@ function RangeItemContainer(props: IDatePicker.RangeItemContainerProps) {
               styles['second-block'],
               // Array.from<IDatePicker.TimeType>(['hour-minute-second']).includes(timeType ?? '') ? '' : styles['hidden'],
             ].join(' ')}>
+            <SelectBoxArrowIcon />
             <select 
               className={styles['select-box']} 
               value={selectedDate?.getSeconds().toString().padStart(2, '0')}

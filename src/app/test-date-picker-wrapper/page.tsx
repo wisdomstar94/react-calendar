@@ -50,7 +50,7 @@ export default function Page() {
         <DatePickerWrapper
           selectedRangeDate={selectedRangeDate}
           setSelectedRangeDate={setSelectedRangeDate} 
-          isMatchInputWidth={true} 
+          isMatchInputWidth={false} 
           rangeType="range"
           pickType={"datetime"} 
           timeType="hour-minute"
@@ -76,6 +76,7 @@ export default function Page() {
           //     },
           //   },
           // }}
+          width={400}
           onValueChange={(value) => {}} 
           onRangeDateDiffDays={(dayCount) => {
             console.log('@dayCount', dayCount);
