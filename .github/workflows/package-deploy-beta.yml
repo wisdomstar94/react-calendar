@@ -1,12 +1,12 @@
-name: package-deploy
+name: package-deploy-release
 
 on:
   push:
     tags:
-      - v*
+      - v[0-9]+.[0-9]+.[0-9]+-beta.[0-9]+$
 
 jobs:
-  publish-npm-registry:
+  publish-github-registry:
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -19,7 +19,7 @@ jobs:
           registry-url: https://npm.pkg.github.com/
       - run: npm install
         env:
-          NODE_AUTH_TOKEN: ${{secrets.PACKAGE_PUBLISH_KEY}}
+          NODE_AUTH_TOKEN: ${{secrets.PACKAGE_PUBLISH_KEY_GITHUB}}
       - run: npm run build
       - run: npm run build:tsc
       - run: mv ./index.ts ./index.d.ts
@@ -29,4 +29,4 @@ jobs:
       - run: mv ./lib/src ./src
       - run: npm publish
         env:
-          NODE_AUTH_TOKEN: ${{secrets.PACKAGE_PUBLISH_KEY}}
+          NODE_AUTH_TOKEN: ${{secrets.PACKAGE_PUBLISH_KEY_GITHUB}}
