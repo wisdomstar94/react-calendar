@@ -3,12 +3,10 @@ name: package-deploy-release
 on:
   push:
     tags:
-      - 'v/**'
-    tags-ignore: 
-      - '*beta.[0-9]+'
+      - 'v[0-9]+.[0-9]+.[0-9]+'
 
 jobs:
-  publish-github-registry:
+  publish-release-registry:
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -19,6 +17,7 @@ jobs:
         with:
           node-version: 18
           registry-url: https://npm.pkg.github.com/
+          # registry-url: https://registry.npmjs.org/
       - run: npm install
         env:
           NODE_AUTH_TOKEN: ${{secrets.PACKAGE_PUBLISH_KEY_GITHUB}}
@@ -32,28 +31,6 @@ jobs:
       - run: npm publish
         env:
           NODE_AUTH_TOKEN: ${{secrets.PACKAGE_PUBLISH_KEY_GITHUB}}
-  publish-npm-registry:
-    runs-on: ubuntu-latest
-    permissions:
-      contents: read
-      packages: write
-    steps:
-      - uses: actions/checkout@v2
-      - uses: actions/setup-node@v1
-        with:
-          node-version: 18
-          registry-url: https://registry.npmjs.org/
-      - run: npm install
-        env:
-          NODE_AUTH_TOKEN: ${{secrets.PACKAGE_PUBLISH_KEY_GITHUB}}
-      - run: npm run build
-      - run: npm run build:tsc
-      - run: mv ./index.ts ./index.d.ts
-      - run: rm -rf ./src
-      - run: rm -rf ./public
-      - run: rm -rf ./.github
-      - run: mv ./lib/src ./src
-      - run: npm ci
-      - run: npm publish
-        env:
-          NODE_AUTH_TOKEN: ${{secrets.PACKAGE_PUBLISH_KEY_NPM}}
+          # NODE_AUTH_TOKEN: ${{secrets.PACKAGE_PUBLISH_KEY_NPM}}
+          
+  
