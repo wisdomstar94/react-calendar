@@ -3,7 +3,7 @@
     "target": "es6",
     "lib": ["dom", "dom.iterable", "esnext"],
     "declaration": true,
-    "declarationDir": "lib/src",
+    "declarationDir": "lib",
     "emitDeclarationOnly": true,
     "allowJs": true,
     "skipLibCheck": true,
