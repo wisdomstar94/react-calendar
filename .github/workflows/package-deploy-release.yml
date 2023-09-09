@@ -39,6 +39,7 @@ jobs:
       - run: rm -rf ./.eslintrc.json
       - run: rm -rf ./.gitignore
       - run: mv ./lib/src ./src
+      - run: rm -rf ./lib
       # - run: npm publish
       - run: npm publish --access=public
         env:
