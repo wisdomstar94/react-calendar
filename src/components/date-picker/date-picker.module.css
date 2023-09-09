@@ -5,6 +5,7 @@
   align-items: center;
   position: fixed;
   user-select: none;
+  z-index: 50;
 }
 .date-picker-contaienr.show {
   display: flex;
