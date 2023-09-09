@@ -1,6 +1,7 @@
 {
   "name": "@wisdomstar94/react-calendar",
-  "version": "0.0.20",
+  "license": "MIT",
+  "version": "0.0.21",
   "keywords": [
     "react",
     "date-picker",
