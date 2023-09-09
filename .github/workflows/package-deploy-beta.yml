@@ -1,4 +1,4 @@
-name: package-deploy-release
+name: package-deploy-beta
 
 on:
   push:
