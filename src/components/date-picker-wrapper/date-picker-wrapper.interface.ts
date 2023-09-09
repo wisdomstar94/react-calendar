@@ -18,6 +18,7 @@ export declare namespace IDatePickerWrapper {
 
     defaultValues?: IDatePicker.DefaultValues;
       
+    isApplyFullSizeWhenDisplayEscape?: boolean;
     allowSelectDates?: IDatePicker.AllowSelectDates;
     outputFormat?: string;
     onValueChange: (value: string) => void

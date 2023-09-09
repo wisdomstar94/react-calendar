@@ -117,7 +117,8 @@ export declare namespace IDatePicker {
     onRangeDateDiffDays?: (dayCount: number | undefined) => void;
     
     outputFormat?: string;
-      
+    
+    isApplyFullSizeWhenDisplayEscape?: boolean;
     allowSelectDates?: AllowSelectDates;
     width?: number;
   }

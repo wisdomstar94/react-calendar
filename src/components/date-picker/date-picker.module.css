@@ -290,7 +290,7 @@
   border: 1px solid #ccc;
   align-items: center;
   justify-content: flex-start;
-  padding: 2px 0;
+  padding: 4px 0;
   cursor: pointer;
 }
 .range-item-container:hover {

@@ -94,6 +94,7 @@ export function useCalendar() {
       nextYearDate: DateTime.fromJSDate(targetDate).plus({ year: 1 }).toJSDate(),
       currentMonth: targetDate.getMonth() + 1,
       currentYear: targetDate.getFullYear(),
+      currentDate: targetDate,
     };
   }
 

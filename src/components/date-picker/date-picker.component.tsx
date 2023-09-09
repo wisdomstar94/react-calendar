@@ -31,7 +31,7 @@ export function DatePicker(props: IDatePicker.Props) {
     onRangeDateDiffDays,
     width,
   } = props;
-  // const isTimeAllowSecondPick = useMemo(() => props.isTimeAllowSecondPick ?? false, [props.isTimeAllowSecondPick]);
+  const isApplyFullSizeWhenDisplayEscape = useMemo(() => props.isApplyFullSizeWhenDisplayEscape ?? false, [props.isApplyFullSizeWhenDisplayEscape]);
 
   const isDefaultValuesForce = useMemo(() => defaultValues?.isForce ?? false, [defaultValues?.isForce]);
 
@@ -173,8 +173,8 @@ export function DatePicker(props: IDatePicker.Props) {
     if (direction === undefined) return undefined;
     if (direction.isFull !== true) {
       const elementClientXY = getElementClientXY(getInputElement());
-      const windowWidth = typeof window !== 'undefined' ? window.innerWidth : 0;
-      const windowHeight = typeof window !== 'undefined' ? window.innerHeight : 0;
+      const windowWidth = getWindowWidth();
+      const windowHeight = getWindowHeight();
 
       return {
         width: `${applyWidth}px`,
@@ -197,12 +197,22 @@ export function DatePicker(props: IDatePicker.Props) {
       };
     }
     return {
-      width: `100%`,
-      height: `100%`,
+      width: `100vw`,
+      height: `100vh`,
       top: 0,
       left: 0,
     };
   }, [applyWidth, direction, getInputElement]);
+
+  function getWindowWidth() {
+    if (typeof window === 'undefined') return 0;
+    return Math.min(...[window.innerWidth, window.outerWidth]);
+  }
+
+  function getWindowHeight() {
+    if (typeof window === 'undefined') return 0;
+    return Math.min(...[window.innerHeight, window.outerHeight]);
+  }
 
   const datePickerContainerClassName = useMemo<string>(() => {
     const classNames: string[] = [styles['date-picker-contaienr']];
@@ -422,8 +432,8 @@ export function DatePicker(props: IDatePicker.Props) {
     if (typeof window === 'undefined') return;
     // if (isShow !== true) return;
 
-    const windowWidth = window.innerWidth;
-    const windowHeight = window.innerHeight;
+    const windowWidth = getWindowWidth();
+    const windowHeight = getWindowHeight();
 
     const inputElement = getInputElement();
     if (inputElement === null) return;  
@@ -454,6 +464,12 @@ export function DatePicker(props: IDatePicker.Props) {
 
     if (_direction.vertical !== undefined && _direction.horizontal !== undefined) {
       _direction.isFull = false;
+    }
+
+    if (_direction.isFull === true && !isApplyFullSizeWhenDisplayEscape) {
+      _direction.isFull = false;
+      _direction.horizontal = _direction.horizontal ?? 'left';
+      _direction.vertical = _direction.vertical ?? 'bottom';
     }
 
     setDirection(_direction);
@@ -659,6 +675,7 @@ export function DatePicker(props: IDatePicker.Props) {
   useEffect(() => {
     if (rangeType === 'range') {
       if (isShow === true) {
+        setRangeDateControlTarget('start');
         if (selectedRangeDate !== undefined) {
           setCurrentCalendarInfo(calendar.getDayCalendarInfo(selectedRangeDate.start ?? new Date(), selectedRangeDate));
         } else {
@@ -771,7 +788,14 @@ export function DatePicker(props: IDatePicker.Props) {
       setCurrentCalendarInfo(calendar.getDayCalendarInfo(new Date()));
       if (typeof onValueChange === 'function' && isApplyValue()) onValueChange('');
     } else {
-      setCurrentCalendarInfo(calendar.getDayCalendarInfo((selectedRangeDate.start ?? selectedRangeDate.end) ?? new Date(), selectedRangeDate));
+
+      let targetDate: Date = (selectedRangeDate.start ?? selectedRangeDate.end) ?? new Date();
+      if (isShow === true) {
+        targetDate = currentCalendarInfo?.currentDate ?? targetDate;
+      }
+
+      setCurrentCalendarInfo(calendar.getDayCalendarInfo(targetDate, selectedRangeDate));
+
       if (typeof onValueChange === 'function' && isApplyValue()) {
         onValueChange(getRangeInputValue(selectedRangeDate));
       }
@@ -841,6 +865,9 @@ export function DatePicker(props: IDatePicker.Props) {
                   setSelectedRangeDateProxy={setSelectedRangeDateProxy}
                   onClick={() => {
                     setRangeDateControlTarget('start');
+                    if (selectedRangeDate?.start !== undefined) {
+                      setCurrentCalendarInfo(calendar.getDayCalendarInfo(selectedRangeDate?.start, selectedRangeDate));
+                    }
                   }}
                   />
                 <div style={{ width: '100%', height: '4px' }}></div>
@@ -855,6 +882,9 @@ export function DatePicker(props: IDatePicker.Props) {
                   setSelectedRangeDateProxy={setSelectedRangeDateProxy}
                   onClick={() => {
                     setRangeDateControlTarget('end');
+                    if (selectedRangeDate?.end !== undefined) {
+                      setCurrentCalendarInfo(calendar.getDayCalendarInfo(selectedRangeDate?.end, selectedRangeDate));
+                    }
                   }}
                 />
               </div>
@@ -1272,9 +1302,6 @@ function RangeItemContainer(props: IDatePicker.RangeItemContainerProps) {
     selectedRangeDate,
     setSelectedRangeDateProxy,
   } = props;
-
-  const rangeDivideString = useMemo(() => props.rangeDivideString ?? '~', [props.rangeDivideString]);
-  // const [dateValue, setDateValue] = useState<string>('');
 
   const layoutType = useMemo<IDatePicker.RangeItemContainerLayoutType>(() => {
     switch(pickType) {

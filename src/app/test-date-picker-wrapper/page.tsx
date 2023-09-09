@@ -54,6 +54,7 @@ export default function Page() {
           rangeType="range"
           pickType={"datetime"} 
           timeType="hour-minute"
+          isApplyFullSizeWhenDisplayEscape={true}
           // outputFormat="yyyy-MM-dd HH:00"
           // defaultValues={{
           //   isForce: true,
@@ -88,6 +89,7 @@ export default function Page() {
           selectedDate={selectedDate}
           setSelectedDate={setSelectedDate}
           isMatchInputWidth={true} 
+          isApplyFullSizeWhenDisplayEscape={true}
           rangeType="single"
           pickType={"datetime"} 
           timeType="hour-minute-second"

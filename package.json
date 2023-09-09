@@ -1,6 +1,6 @@
 {
   "name": "@wisdomstar94/react-calendar",
-  "version": "0.0.13",
+  "version": "0.0.14",
   "private": false,
   "scripts": {
     "dev": "next dev -p 3330",
@@ -16,19 +16,19 @@
   },
   "repository": "https://github.com/wisdomstar94/react-calendar",
   "dependencies": {
-    "@types/node": "20.4.2",
-    "@types/react": "18.2.15",
+    "@types/node": "20.6.0",
+    "@types/react": "18.2.21",
     "@types/react-dom": "18.2.7",
-    "autoprefixer": "10.4.14",
-    "eslint": "8.45.0",
-    "eslint-config-next": "13.4.10",
-    "luxon": "^3.3.0",
-    "next": "13.4.10",
-    "postcss": "8.4.26",
+    "autoprefixer": "10.4.15",
+    "eslint": "8.49.0",
+    "eslint-config-next": "13.4.19",
+    "luxon": "^3.4.3",
+    "next": "13.4.19",
+    "postcss": "8.4.29",
     "react": "18.2.0",
     "react-dom": "18.2.0",
     "tailwindcss": "3.3.3",
-    "typescript": "5.1.6"
+    "typescript": "5.2.2"
   },
   "peerDependencies": {
     "@types/react": "^18.2.15",
@@ -37,8 +37,8 @@
     "react-dom": "^18.2.0"
   },
   "devDependencies": {
-    "@types/luxon": "^3.3.0",
-    "esbuild": "^0.18.14",
-    "esbuild-css-modules-plugin": "^2.7.1"
+    "@types/luxon": "^3.3.2",
+    "esbuild": "^0.19.2",
+    "esbuild-css-modules-plugin": "^3.0.1"
   }
 }
