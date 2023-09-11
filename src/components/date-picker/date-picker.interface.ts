@@ -75,6 +75,12 @@ export declare namespace IDatePicker {
     isForce?: boolean;
   }
 
+  export interface CalendarPickAutoCloseParams {
+    pickType: PickType;
+    timeType: TimeType;
+    rangeType: RangeType;
+  }
+
   export interface Props {
     inputSelector?: InputSelector;
     pickType: PickType;
@@ -98,6 +104,7 @@ export declare namespace IDatePicker {
     
     outputFormat?: string;
     
+    isCalendarPickAutoClose?: (params: CalendarPickAutoCloseParams) => boolean;
     isApplyFullSizeWhenDisplayEscape?: boolean;
     allowSelectDates?: AllowSelectDates;
     width?: number;
@@ -121,10 +128,13 @@ export declare namespace IDatePicker {
     target: RangeDateControlTarget;
     rangeDivideString: string;
     pickType: PickType;
-    timeType: TimeType | undefined;
+    timeType: TimeType;
+    rangeType: RangeType;
+    setIsShow: Dispatch<SetStateAction<boolean>>;
     outputFormat: string;
     isSelected: boolean;
     onClick: () => void;
+    isCalendarPickAutoClose: (params: CalendarPickAutoCloseParams) => boolean;
     selectedRangeDate: undefined | RangeDate;
     setSelectedRangeDateProxy: (rangeDate: IDatePicker.RangeDate | undefined) => void;
   }

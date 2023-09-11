@@ -28,11 +28,11 @@ export default function Page() {
     if (init === false) return;
 
     setSelectedRangeDate({
-      start: new Date(`2023-02-04 02:00:00`),
-      end: new Date(`2023-09-22 23:00:00`),
+      start: new Date(`2023-02-04 02:11:22`),
+      end: new Date(`2023-09-22 23:33:44`),
     });
 
-    setSelectedDate(new Date(`2023-09-04 03:00:00`));
+    setSelectedDate(new Date(`2023-09-04 03:55:55`));
 
     // setTimeout(() => {
     //   setSelectedRangeDate({
@@ -52,10 +52,11 @@ export default function Page() {
         </div>
         <div>
           pickType :
-          <select value={pickType} onChange={e => {
+          <select value={pickType ?? ''} onChange={e => {
             const value = e.target.value as IDatePicker.PickType;
             setPickType(value);
           }}>
+            <option value="">선택</option>
             <option value="date">date</option>
             <option value="datetime">datetime</option>
             <option value="month">month</option>
@@ -63,10 +64,11 @@ export default function Page() {
         </div>
         <div>
           outputFormat :
-          <select value={outputFormat} onChange={e => {
+          <select value={outputFormat ?? ''} onChange={e => {
             const value = e.target.value;
             setOutputFormat(value);
           }}>
+            <option value="">선택</option>
             <option value="yyyy-MM-dd HH:mm:ss">yyyy-MM-dd HH:mm:ss</option>
             <option value="yyyy-MM-dd HH:mm">yyyy-MM-dd HH:mm</option>
             <option value="yyyy-MM-dd HH:00">yyyy-MM-dd HH:00</option>
@@ -80,10 +82,13 @@ export default function Page() {
           isMatchInputWidth={false} 
           rangeType="range"
           pickType={pickType}
-          timeType="hour"
+          // timeType="hour"
           isApplyFullSizeWhenDisplayEscape={false}
           rangeDivideString={'-->'}
           outputFormat={outputFormat}
+          isCalendarPickAutoClose={(params) => {
+            return false;
+          }}
           defaultValues={{
             // isForce: false,
             range: {
@@ -145,8 +150,11 @@ export default function Page() {
           isApplyFullSizeWhenDisplayEscape={true}
           rangeType="single"
           pickType={pickType} 
-          timeType="hour"
+          // timeType="hour"
           outputFormat={outputFormat}
+          isCalendarPickAutoClose={(params) => {
+            return false;
+          }}
           defaultValues={{
             // isForce: true,
             single: {

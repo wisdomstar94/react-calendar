@@ -13,7 +13,6 @@ export function DatePicker(props: IDatePicker.Props) {
   const {
     inputSelector,
     pickType,
-    timeType,
 
     selectedDate,
     setSelectedDate,
@@ -32,10 +31,11 @@ export function DatePicker(props: IDatePicker.Props) {
     width,
   } = props;
   const isApplyFullSizeWhenDisplayEscape = useMemo(() => props.isApplyFullSizeWhenDisplayEscape ?? false, [props.isApplyFullSizeWhenDisplayEscape]);
-
+  const isCalendarPickAutoClose = useMemo(() => props.isCalendarPickAutoClose ?? (() => true), [props.isCalendarPickAutoClose]);
   const isDefaultValuesForce = useMemo(() => defaultValues?.isForce ?? false, [defaultValues?.isForce]);
 
   const rangeType = useMemo<IDatePicker.RangeType>(() => props.rangeType ?? 'single', [props.rangeType]);
+  const timeType = useMemo<IDatePicker.TimeType>(() => props.timeType ?? 'hour-minute', [props.timeType]);
   const rangeDivideString = useMemo(() => props.rangeDivideString ?? '~', [props.rangeDivideString]);
   const [rangeDateControlTarget, setRangeDateControlTarget] = useState<IDatePicker.RangeDateControlTarget>('start');
 
@@ -904,6 +904,9 @@ export function DatePicker(props: IDatePicker.Props) {
                 <RangeItemContainer 
                   pickType={pickType}
                   timeType={timeType}
+                  rangeType={rangeType}
+                  setIsShow={setIsShow}
+                  isCalendarPickAutoClose={isCalendarPickAutoClose}
                   rangeDivideString={rangeDivideString}
                   outputFormat={outputFormat}
                   target="start"
@@ -921,6 +924,9 @@ export function DatePicker(props: IDatePicker.Props) {
                 <RangeItemContainer 
                   pickType={pickType}
                   timeType={timeType}
+                  rangeType={rangeType}
+                  setIsShow={setIsShow}
+                  isCalendarPickAutoClose={isCalendarPickAutoClose}
                   rangeDivideString={rangeDivideString}
                   outputFormat={outputFormat}
                   target="end"
@@ -1122,11 +1128,11 @@ export function DatePicker(props: IDatePicker.Props) {
                             }
 
                             if (rangeType === 'single') {
-                              // if (direction?.isFull === true) {
-                              //   if (typeof setIsShow === 'function') setIsShow(prev => false);
-                              // }
+                              if (isCalendarPickAutoClose({ pickType, timeType, rangeType }) === true) {
+                                if (typeof setIsShow === 'function') setIsShow(prev => false);
+                              }
                               if (selectedDate === undefined) {
-                                setSelectedDateProxy(DateTime.fromJSDate(item.date).set({ hour: 0, minute: 0, second: 0, millisecond: 0 }).toJSDate());  
+                                setSelectedDateProxy(DateTime.fromJSDate(item.date).set({ hour: defaultValues?.single?.hour, minute: defaultValues?.single?.minute, second: defaultValues?.single?.second, millisecond: defaultValues?.single?.millisecond }).toJSDate());  
                                 if (typeof onValueChange === 'function') onValueChange(``);
                               } else {
                                 setSelectedDateProxy(DateTime.fromJSDate(item.date).set({ hour: selectedDate?.getHours(), minute: selectedDate?.getMinutes(), second: selectedDate?.getSeconds() }).toJSDate());
@@ -1135,73 +1141,36 @@ export function DatePicker(props: IDatePicker.Props) {
                             }
 
                             if (rangeType === 'range') {
-                              // if (direction?.isFull === true) {
-                              //   if (typeof setIsShow === 'function') setIsShow(prev => false);
-                              // }
-                              if (selectedRangeDate === undefined) {
-                                if (rangeDateControlTarget === 'start') {
-                                  const start: Date = DateTime.now().set({ year: item.dayInfo.year, month: item.dayInfo.month, day: item.dayInfo.day, hour: 0, minute: 0, second: 0, millisecond: 0 }).toJSDate();
-                                  const newSelectedRangeDate = {
-                                    start,
-                                    end: undefined,
-                                  };
-                                  setSelectedRangeDateProxy(newSelectedRangeDate);
-                                  if (typeof onValueChange === 'function') onValueChange(getRangeInputValue(newSelectedRangeDate));
-                                }
-                                if (rangeDateControlTarget === 'end') {
-                                  const end: Date = DateTime.now().set({ year: item.dayInfo.year, month: item.dayInfo.month, day: item.dayInfo.day, hour: 0, minute: 0, second: 0, millisecond: 0 }).toJSDate();
-                                  const newSelectedRangeDate = {
-                                    start: undefined,
-                                    end,
-                                  };
-                                  setSelectedRangeDateProxy(newSelectedRangeDate);
-                                  if (typeof onValueChange === 'function') onValueChange(getRangeInputValue(newSelectedRangeDate));
-                                }
-                              } else {
-                                let newSelectedRangeDate: IDatePicker.RangeDate | undefined;
-                                if (rangeDateControlTarget === 'start') {
-                                  let start: Date | undefined = undefined;
-                                  if (selectedRangeDate.start !== undefined) {
-                                    start = DateTime.fromJSDate(selectedRangeDate.start).set({ year: item.dayInfo.year, month: item.dayInfo.month, day: item.dayInfo.day }).toJSDate();
-                                  } else {
-                                    start = DateTime.now().set({ year: item.dayInfo.year, month: item.dayInfo.month, day: item.dayInfo.day, hour: 0, minute: 0, second: 0, millisecond: 0 }).toJSDate();
-                                  }
-
-                                  if (selectedRangeDate.end !== undefined) {
-                                    if (selectedRangeDate.end.getTime() < start.getTime()) {
-                                      console.error(`시작 날짜는 종료 날짜보다 이후가 될 수 없습니다.`);
-                                      return;
-                                    }
-                                  }
-
-                                  newSelectedRangeDate = {
-                                    start,
-                                    end: selectedRangeDate.end,
-                                  };
-                                  setSelectedRangeDateProxy(newSelectedRangeDate);
-                                } else if (rangeDateControlTarget === 'end') {
-                                  let end: Date | undefined = undefined;
-                                  if (selectedRangeDate.end !== undefined) {
-                                    end = DateTime.fromJSDate(selectedRangeDate.end).set({ year: item.dayInfo.year, month: item.dayInfo.month, day: item.dayInfo.day }).toJSDate();
-                                  } else {
-                                    end = DateTime.now().set({ year: item.dayInfo.year, month: item.dayInfo.month, day: item.dayInfo.day, hour: 0, minute: 0, second: 0, millisecond: 0 }).toJSDate();
-                                  }
-
-                                  if (selectedRangeDate.start !== undefined) {
-                                    if (selectedRangeDate.start.getTime() > end.getTime()) {
-                                      console.error(`종료 날짜는 시작 날짜보다 이전이 될 수 없습니다.`);
-                                      return;
-                                    }
-                                  }
-
-                                  newSelectedRangeDate = {
-                                    start: selectedRangeDate.start,
-                                    end,
-                                  };
-                                  setSelectedRangeDateProxy(newSelectedRangeDate);
-                                }
-                                if (typeof onValueChange === 'function') onValueChange(getRangeInputValue(newSelectedRangeDate));
+                              if (isCalendarPickAutoClose({ pickType, timeType, rangeType }) === true) {
+                                if (typeof setIsShow === 'function') setIsShow(prev => false);
                               }
+
+                              let startDate = selectedRangeDate?.start;
+                              let endDate = selectedRangeDate?.end;
+
+                              if (rangeDateControlTarget === 'start') {
+                                if (startDate === undefined) {
+                                  startDate = DateTime.now().set({ year: item.dayInfo.year, month: item.dayInfo.month, day: item.dayInfo.day, hour: defaultValues?.range?.start?.hour, minute: defaultValues?.range?.start?.minute, second: defaultValues?.range?.start?.second, millisecond: defaultValues?.range?.start?.millisecond }).toJSDate();
+                                } else {
+                                  startDate = DateTime.fromJSDate(startDate).set({ year: item.dayInfo.year, month: item.dayInfo.month, day: item.dayInfo.day }).toJSDate();
+                                }
+                              }
+
+                              if (rangeDateControlTarget === 'end') {
+                                if (endDate === undefined) {
+                                  endDate = DateTime.now().set({ year: item.dayInfo.year, month: item.dayInfo.month, day: item.dayInfo.day, hour: defaultValues?.range?.end?.hour, minute: defaultValues?.range?.end?.minute, second: defaultValues?.range?.end?.second, millisecond: defaultValues?.range?.end?.millisecond }).toJSDate();
+                                } else {
+                                  endDate = DateTime.fromJSDate(endDate).set({ year: item.dayInfo.year, month: item.dayInfo.month, day: item.dayInfo.day }).toJSDate();
+                                }
+                              }
+                              
+                              const newSelectedRangeDate: IDatePicker.RangeDate = {
+                                start: startDate,
+                                end: endDate,
+                              };
+
+                              setSelectedRangeDateProxy(newSelectedRangeDate);
+                              if (typeof onValueChange === 'function') onValueChange(getRangeInputValue(newSelectedRangeDate));
                             }
                           }}>
                           <div className={styles['wrapper']}>
@@ -1253,6 +1222,10 @@ export function DatePicker(props: IDatePicker.Props) {
                       } else {
                         setSelectedDateProxy(DateTime.fromJSDate(selectedDate).set({ hour: Number(_value) }).toJSDate());
                       }
+
+                      if (isCalendarPickAutoClose({ pickType, timeType, rangeType }) === true) {
+                        if (typeof setIsShow === 'function') setIsShow(prev => false);
+                      }
                     }}
                     >
                     {
@@ -1284,6 +1257,10 @@ export function DatePicker(props: IDatePicker.Props) {
                       } else {
                         setSelectedDateProxy(DateTime.fromJSDate(selectedDate).set({ minute: Number(_value) }).toJSDate());
                       }
+
+                      if (isCalendarPickAutoClose({ pickType, timeType, rangeType }) === true) {
+                        if (typeof setIsShow === 'function') setIsShow(prev => false);
+                      }
                     }}
                     >
                     {
@@ -1314,6 +1291,10 @@ export function DatePicker(props: IDatePicker.Props) {
                         setSelectedDateProxy(undefined);
                       } else {
                         setSelectedDateProxy(DateTime.fromJSDate(selectedDate).set({ second: Number(_value) }).toJSDate());
+                      }
+
+                      if (isCalendarPickAutoClose({ pickType, timeType, rangeType }) === true) {
+                        if (typeof setIsShow === 'function') setIsShow(prev => false);
                       }
                     }}
                     >
@@ -1355,9 +1336,12 @@ function RangeItemContainer(props: IDatePicker.RangeItemContainerProps) {
     target,
     pickType,
     timeType,
+    rangeType,
     outputFormat,
     isSelected,
+    isCalendarPickAutoClose,
     onClick,
+    setIsShow,
     selectedRangeDate,
     setSelectedRangeDateProxy,
   } = props;
@@ -1433,6 +1417,11 @@ function RangeItemContainer(props: IDatePicker.RangeItemContainerProps) {
               value={selectedDate?.getHours().toString().padStart(2, '0')}
               onChange={(event) => {
                 const _value = event.target.value;
+
+                if (isCalendarPickAutoClose({ pickType, timeType, rangeType }) === true) {
+                  if (typeof setIsShow === 'function') setIsShow(prev => false);
+                }
+
                 if (selectedDate === undefined) {
                   setSelectedRangeDateProxy(undefined);
                   return;
@@ -1484,6 +1473,11 @@ function RangeItemContainer(props: IDatePicker.RangeItemContainerProps) {
               value={selectedDate?.getMinutes().toString().padStart(2, '0')}
               onChange={(event) => {
                 const _value = event.target.value;
+
+                if (isCalendarPickAutoClose({ pickType, timeType, rangeType }) === true) {
+                  if (typeof setIsShow === 'function') setIsShow(prev => false);
+                }
+
                 if (selectedDate === undefined) {
                   setSelectedRangeDateProxy(undefined);
                   return;
@@ -1535,6 +1529,11 @@ function RangeItemContainer(props: IDatePicker.RangeItemContainerProps) {
               value={selectedDate?.getSeconds().toString().padStart(2, '0')}
               onChange={(event) => {
                 const _value = event.target.value;
+
+                if (isCalendarPickAutoClose({ pickType, timeType, rangeType }) === true) {
+                  if (typeof setIsShow === 'function') setIsShow(prev => false);
+                }
+
                 if (selectedDate === undefined) {
                   setSelectedRangeDateProxy(undefined);
                   return;

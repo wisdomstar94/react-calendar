@@ -20,6 +20,7 @@ export function DatePickerWrapper(props: IDatePickerWrapper.Props) {
     onValueChange,
     onRangeDateDiffDays,
     isApplyFullSizeWhenDisplayEscape,
+    isCalendarPickAutoClose,
   } = props;
 
   const [value, setValue] = useState<string>('');
@@ -54,6 +55,7 @@ export function DatePickerWrapper(props: IDatePickerWrapper.Props) {
         allowSelectDates={allowSelectDates}
         outputFormat={outputFormat}
         defaultValues={defaultValues}
+        isCalendarPickAutoClose={isCalendarPickAutoClose}
         isApplyFullSizeWhenDisplayEscape={isApplyFullSizeWhenDisplayEscape}
         onValueChange={(value) => {
           setValue(value);
