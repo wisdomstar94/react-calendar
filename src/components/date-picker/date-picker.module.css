@@ -260,20 +260,26 @@
   margin-left: 0;
 }
 .select-box {
-  -webkit-appearance: none;
-  -moz-appearance: none;
-  appearance: none;
+  -webkit-appearance: none !important;
+  -moz-appearance: none !important;
+  appearance: none !important;
 
   cursor: pointer;
   border-radius: 0;
-  display: inline-flex;
+  display: inline-block;
   flex-wrap: wrap;
   border: 1px solid #ccc;
-  padding: 2px 4px;
-  padding-right: 14px;
+  padding: 3px 4px;
+  padding-right: 13px;
   margin-right: 4px;
   background-color: rgba(255, 255, 255, 0);
   position: relative;
+  font-size: 12px;
+  line-height: 12px;
+  background-image: none;
+}
+.select-box::-ms-expand {
+  display: none;
 }
 .select-box-arrow-icon {
   stroke: #666;
