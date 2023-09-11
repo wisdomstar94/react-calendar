@@ -281,7 +281,13 @@ export function DatePicker(props: IDatePicker.Props) {
     return 'none' as const;
   }
 
-  const inputOnChangeCallback = useRef((event: Event) => {
+  const inputOnKeyDownCallback = useRef((event: KeyboardEvent) => {
+    if (event.key.toLowerCase() === 'tab') {
+      setIsShow(prev => false);
+    }
+  });
+
+  const inputOnKeyUpCallback = useRef((event: KeyboardEvent) => {
     latestTypingDate.current = new Date();
     let value = (event.target as any)?.value;
     if (typeof value !== 'string') { prevValue.current = value; return; }
@@ -759,14 +765,18 @@ export function DatePicker(props: IDatePicker.Props) {
   }, [getInputElement]);
 
   useEffect(() => {
-    const callback = inputOnChangeCallback.current;
+    const keyDownCallback = inputOnKeyDownCallback.current;
+    const keyUpCallback = inputOnKeyUpCallback.current;
 
     const inputElement = getInputElement();
-    inputElement?.removeEventListener('keyup', callback);
-    inputElement?.addEventListener('keyup', callback);
+    inputElement?.removeEventListener('keydown', keyDownCallback);
+    inputElement?.addEventListener('keydown', keyDownCallback);
+    inputElement?.removeEventListener('keyup', keyUpCallback);
+    inputElement?.addEventListener('keyup', keyUpCallback);
 
     return () => {
-      inputElement?.removeEventListener('keyup', callback);
+      inputElement?.removeEventListener('keydown', keyDownCallback);
+      inputElement?.removeEventListener('keyup', keyUpCallback);
     };
   }, [getInputElement]);
 

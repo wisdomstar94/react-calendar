@@ -54,7 +54,7 @@ export default function Page() {
           rangeType="range"
           pickType={"datetime"} 
           timeType="hour-minute"
-          isApplyFullSizeWhenDisplayEscape={true}
+          isApplyFullSizeWhenDisplayEscape={false}
           rangeDivideString={'-->'}
           // outputFormat="yyyy-MM-dd HH:00"
           // defaultValues={{
