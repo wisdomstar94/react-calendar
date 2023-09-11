@@ -21,20 +21,6 @@ export declare namespace IDatePicker {
     ''
   ;
 
-  // export interface TimeSetting {
-  //   allowHour: true;
-  //   allowMinute?: boolean;
-  //   allowSecond?: boolean;
-  // }
-  // export interface DateSetting {
-  //   allowYear?: boolean;
-  //   allowMonth?: boolean;
-  // }
-  // export interface PickType {
-  //   date?: DateSetting;
-  //   time?: TimeSetting;
-  // }
-
   export interface TimeSetting {
     allowHour: true;
     allowMinute?: boolean;
@@ -56,10 +42,6 @@ export declare namespace IDatePicker {
     element?: HTMLInputElement | null;
 
     isMatchInputWidth: boolean;
-  }
-
-  export interface ResizeOrScrollInfo {
-    date: Date;
   }
 
   export interface RangeDate {
@@ -96,7 +78,6 @@ export declare namespace IDatePicker {
   export interface Props {
     inputSelector?: InputSelector;
     pickType: PickType;
-    // isTimeAllowSecondPick?: boolean;
     timeType?: TimeType;
     rangeType?: RangeType;
     rangeDivideString?: string;
@@ -112,7 +93,6 @@ export declare namespace IDatePicker {
     isShow: boolean;
     setIsShow: Dispatch<SetStateAction<boolean>>;
 
-    // onSelect?: (date: Date | undefined, outputString: string) => void;
     onValueChange: (value: string) => void;
     onRangeDateDiffDays?: (dayCount: number | undefined) => void;
     

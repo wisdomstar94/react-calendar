@@ -56,7 +56,10 @@ export function DatePicker(props: IDatePicker.Props) {
   const rangeType = useMemo<IDatePicker.RangeType>(() => props.rangeType ?? 'single', [props.rangeType]);
   const rangeDivideString = useMemo(() => props.rangeDivideString ?? '~', [props.rangeDivideString]);
   const [rangeDateControlTarget, setRangeDateControlTarget] = useState<IDatePicker.RangeDateControlTarget>('start');
-    
+
+  const prevInputRectInfo = useRef<DOMRect>();
+  const disposeSizeAndPositionRequestAnimationFrame = useRef<number>();
+
   const getSystemOutputFormat = useCallback(() => {
     let timeFormat = ``;
     switch(timeType) {
@@ -91,7 +94,6 @@ export function DatePicker(props: IDatePicker.Props) {
 
   const datePickerContainerRef = useRef<HTMLDivElement>(null);
   const datePickerRef = useRef<HTMLDivElement>(null);
-  const [resizeOrscrollInfo, setResizeOrscrollInfo] = useState<IDatePicker.ResizeOrScrollInfo>();
   const [isExistPortal, setIsExistPortal] = useState<boolean>(false);
 
   const latestTypingDate = useRef<Date>();
@@ -226,7 +228,6 @@ export function DatePicker(props: IDatePicker.Props) {
   }, [direction?.isFull, isShow]);
 
   const resizeCallback = useRef(() => {
-    setResizeOrscrollInfo({ date: new Date() });
     disposeSizeAndPosition();
   });
   
@@ -641,6 +642,47 @@ export function DatePicker(props: IDatePicker.Props) {
   }
 
   useEffect(() => {
+    if (isExistPortal !== true) return;
+
+    if (isShow) {
+      if (disposeSizeAndPositionRequestAnimationFrame.current !== undefined) {
+        cancelAnimationFrame(disposeSizeAndPositionRequestAnimationFrame.current);
+      }
+
+      const call = (step: number) => {
+        const currentInputRectInfo = getInputElement()?.getBoundingClientRect();
+        if (prevInputRectInfo.current !== undefined && currentInputRectInfo !== undefined) {
+          if (
+            currentInputRectInfo.width !== prevInputRectInfo.current.width || 
+            currentInputRectInfo.height !== prevInputRectInfo.current.height || 
+            currentInputRectInfo.top !== prevInputRectInfo.current.top || 
+            currentInputRectInfo.left !== prevInputRectInfo.current.left
+          ) {
+            disposeSizeAndPosition();      
+          }
+        }
+
+        prevInputRectInfo.current = currentInputRectInfo;
+        disposeSizeAndPositionRequestAnimationFrame.current = requestAnimationFrame(call);
+      };
+
+      disposeSizeAndPositionRequestAnimationFrame.current = requestAnimationFrame(call);
+      disposeSizeAndPosition();
+    } else {
+      if (disposeSizeAndPositionRequestAnimationFrame.current !== undefined) {
+        cancelAnimationFrame(disposeSizeAndPositionRequestAnimationFrame.current);
+      }
+    }
+
+    return () => {
+      if (disposeSizeAndPositionRequestAnimationFrame.current !== undefined) {
+        cancelAnimationFrame(disposeSizeAndPositionRequestAnimationFrame.current);
+      }
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isShow, isExistPortal]);
+  
+  useEffect(() => {
     const callback = resizeCallback.current;
     callback();
 
@@ -734,13 +776,6 @@ export function DatePicker(props: IDatePicker.Props) {
       return document.querySelector(`#${portalElementId}`) !== undefined;
     })());
   }, []);
-
-  useEffect(() => {
-    if (isExistPortal === true) {
-      const callback = resizeCallback.current;
-      callback();
-    }
-  }, [isExistPortal]);
 
   useEffect(() => {
     if (rangeType === 'range') return;
