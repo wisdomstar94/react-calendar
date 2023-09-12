@@ -31,7 +31,21 @@ export function DatePicker(props: IDatePicker.Props) {
     width,
   } = props;
   const isApplyFullSizeWhenDisplayEscape = useMemo(() => props.isApplyFullSizeWhenDisplayEscape ?? false, [props.isApplyFullSizeWhenDisplayEscape]);
-  const isCalendarPickAutoClose = useMemo(() => props.isCalendarPickAutoClose ?? (() => true), [props.isCalendarPickAutoClose]);
+  const isCalendarPickAutoClose = useCallback((params: IDatePicker.CalendarPickAutoCloseParams) => {
+    if (props.isCalendarPickAutoClose !== undefined) {
+      return props.isCalendarPickAutoClose(params); 
+    }
+
+    if (params.rangeType === 'range') {
+      return false;
+    }
+
+    if (params.pickType === 'datetime' && params.editType === 'date') {
+      return false;
+    }
+
+    return true;
+  }, [props]);
   const isDefaultValuesForce = useMemo(() => defaultValues?.isForce ?? false, [defaultValues?.isForce]);
 
   const rangeType = useMemo<IDatePicker.RangeType>(() => props.rangeType ?? 'single', [props.rangeType]);
@@ -1128,7 +1142,7 @@ export function DatePicker(props: IDatePicker.Props) {
                             }
 
                             if (rangeType === 'single') {
-                              if (isCalendarPickAutoClose({ pickType, timeType, rangeType }) === true) {
+                              if (isCalendarPickAutoClose({ pickType, timeType, rangeType, editType: 'date' }) === true) {
                                 if (typeof setIsShow === 'function') setIsShow(prev => false);
                               }
                               if (selectedDate === undefined) {
@@ -1141,7 +1155,7 @@ export function DatePicker(props: IDatePicker.Props) {
                             }
 
                             if (rangeType === 'range') {
-                              if (isCalendarPickAutoClose({ pickType, timeType, rangeType }) === true) {
+                              if (isCalendarPickAutoClose({ pickType, timeType, rangeType, editType: 'date' }) === true) {
                                 if (typeof setIsShow === 'function') setIsShow(prev => false);
                               }
 
@@ -1204,8 +1218,17 @@ export function DatePicker(props: IDatePicker.Props) {
               <div 
                 className={[
                   styles['times-area'],
+                  styles['border-top'],
                   Array.from<IDatePicker.PickType>(['time', 'datetime']).includes(pickType) && rangeType === 'single' ? '' : styles['hidden'],
                 ].join(' ')}>
+                <div className={styles['clock-svg-icon-area']}>
+                  <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" className={styles['clock-svg-icon']} viewBox="0 0 24 24" strokeWidth="2" stroke="currentColor" fill="none" strokeLinecap="round" strokeLinejoin="round">
+                    <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+                    <path d="M21 12a9 9 0 1 0 -9.972 8.948c.32 .034 .644 .052 .972 .052"></path>
+                    <path d="M12 7v5l2 2"></path>
+                    <path d="M18.42 15.61a2.1 2.1 0 0 1 2.97 2.97l-3.39 3.42h-3v-3l3.42 -3.39z"></path>
+                  </svg>
+                </div>
                 <div 
                   className={[
                     styles['time-block'],
@@ -1223,7 +1246,7 @@ export function DatePicker(props: IDatePicker.Props) {
                         setSelectedDateProxy(DateTime.fromJSDate(selectedDate).set({ hour: Number(_value) }).toJSDate());
                       }
 
-                      if (isCalendarPickAutoClose({ pickType, timeType, rangeType }) === true) {
+                      if (isCalendarPickAutoClose({ pickType, timeType, rangeType, editType: 'time' }) === true) {
                         if (typeof setIsShow === 'function') setIsShow(prev => false);
                       }
                     }}
@@ -1258,7 +1281,7 @@ export function DatePicker(props: IDatePicker.Props) {
                         setSelectedDateProxy(DateTime.fromJSDate(selectedDate).set({ minute: Number(_value) }).toJSDate());
                       }
 
-                      if (isCalendarPickAutoClose({ pickType, timeType, rangeType }) === true) {
+                      if (isCalendarPickAutoClose({ pickType, timeType, rangeType, editType: 'time' }) === true) {
                         if (typeof setIsShow === 'function') setIsShow(prev => false);
                       }
                     }}
@@ -1293,7 +1316,7 @@ export function DatePicker(props: IDatePicker.Props) {
                         setSelectedDateProxy(DateTime.fromJSDate(selectedDate).set({ second: Number(_value) }).toJSDate());
                       }
 
-                      if (isCalendarPickAutoClose({ pickType, timeType, rangeType }) === true) {
+                      if (isCalendarPickAutoClose({ pickType, timeType, rangeType, editType: 'time' }) === true) {
                         if (typeof setIsShow === 'function') setIsShow(prev => false);
                       }
                     }}
@@ -1418,7 +1441,7 @@ function RangeItemContainer(props: IDatePicker.RangeItemContainerProps) {
               onChange={(event) => {
                 const _value = event.target.value;
 
-                if (isCalendarPickAutoClose({ pickType, timeType, rangeType }) === true) {
+                if (isCalendarPickAutoClose({ pickType, timeType, rangeType, editType: 'time' }) === true) {
                   if (typeof setIsShow === 'function') setIsShow(prev => false);
                 }
 
@@ -1474,7 +1497,7 @@ function RangeItemContainer(props: IDatePicker.RangeItemContainerProps) {
               onChange={(event) => {
                 const _value = event.target.value;
 
-                if (isCalendarPickAutoClose({ pickType, timeType, rangeType }) === true) {
+                if (isCalendarPickAutoClose({ pickType, timeType, rangeType, editType: 'time' }) === true) {
                   if (typeof setIsShow === 'function') setIsShow(prev => false);
                 }
 
@@ -1530,7 +1553,7 @@ function RangeItemContainer(props: IDatePicker.RangeItemContainerProps) {
               onChange={(event) => {
                 const _value = event.target.value;
 
-                if (isCalendarPickAutoClose({ pickType, timeType, rangeType }) === true) {
+                if (isCalendarPickAutoClose({ pickType, timeType, rangeType, editType: 'time' }) === true) {
                   if (typeof setIsShow === 'function') setIsShow(prev => false);
                 }
 

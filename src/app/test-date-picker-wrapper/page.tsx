@@ -86,9 +86,9 @@ export default function Page() {
           isApplyFullSizeWhenDisplayEscape={false}
           rangeDivideString={'-->'}
           outputFormat={outputFormat}
-          isCalendarPickAutoClose={(params) => {
-            return false;
-          }}
+          // isCalendarPickAutoClose={(params) => {
+          //   return false;
+          // }}
           defaultValues={{
             // isForce: false,
             range: {
@@ -128,6 +128,7 @@ export default function Page() {
             <option value="date">date</option>
             <option value="datetime">datetime</option>
             <option value="month">month</option>
+            <option value="time">time</option>
           </select>
         </div>
         <div>
@@ -152,9 +153,9 @@ export default function Page() {
           pickType={pickType} 
           // timeType="hour"
           outputFormat={outputFormat}
-          isCalendarPickAutoClose={(params) => {
-            return false;
-          }}
+          // isCalendarPickAutoClose={(params) => {
+          //   return false;
+          // }}
           defaultValues={{
             // isForce: true,
             single: {

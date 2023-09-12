@@ -75,10 +75,13 @@ export declare namespace IDatePicker {
     isForce?: boolean;
   }
 
+  export type EditType = 'date' | 'time';
+
   export interface CalendarPickAutoCloseParams {
     pickType: PickType;
     timeType: TimeType;
     rangeType: RangeType;
+    editType: EditType;
   }
 
   export interface Props {

@@ -246,6 +246,9 @@
   position: relative;
   padding: 6px 0;
 }
+.date-picker-contaienr .date-picker .times-area.border-top {
+  border-top: 1px solid #ccc;
+}
 .date-picker-contaienr .date-picker .times-area .time-block {
   display: inline-flex;
   flex-wrap: wrap;
@@ -536,4 +539,13 @@
 }
 .range-item-container.time-hour-minute-second .time-unit-list .second-block {
   display: inline-flex;
+}
+
+.clock-svg-icon-area {
+  display: inline-flex;
+  flex-wrap: wrap;
+  margin-right: 3px;
+}
+.clock-svg-icon {
+  stroke: #bbb;
 }
