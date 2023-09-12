@@ -27,12 +27,12 @@ export default function Page() {
   useEffect(() => {
     if (init === false) return;
 
-    setSelectedRangeDate({
-      start: new Date(`2023-02-04 02:11:22`),
-      end: new Date(`2023-09-22 23:33:44`),
-    });
+    // setSelectedRangeDate({
+    //   start: new Date(`2023-02-04 02:11:22`),
+    //   end: new Date(`2023-09-22 23:33:44`),
+    // });
 
-    setSelectedDate(new Date(`2023-09-04 03:55:55`));
+    // setSelectedDate(new Date(`2023-09-04 03:55:55`));
 
     // setTimeout(() => {
     //   setSelectedRangeDate({
@@ -119,7 +119,7 @@ export default function Page() {
         <div>
           single
         </div>
-        <div>
+        {/* <div>
           pickType :
           <select value={pickType} onChange={e => {
             const value = e.target.value as IDatePicker.PickType;
@@ -143,16 +143,16 @@ export default function Page() {
             <option value="yyyy-MM-dd">yyyy-MM-dd</option>
             <option value="yyyy-MM">yyyy-MM</option>
           </select>
-        </div>
+        </div> */}
         <DatePickerWrapper
           selectedDate={selectedDate}
           setSelectedDate={setSelectedDate}
           isMatchInputWidth={true} 
           isApplyFullSizeWhenDisplayEscape={true}
           rangeType="single"
-          pickType={pickType} 
-          // timeType="hour"
-          outputFormat={outputFormat}
+          pickType={"datetime"} 
+          timeType="hour"
+          outputFormat={"yyyy-MM-dd HH:00"}
           // isCalendarPickAutoClose={(params) => {
           //   return false;
           // }}
@@ -160,9 +160,9 @@ export default function Page() {
             // isForce: true,
             single: {
               day: 'last-of-month',
-              hour: 23, 
-              minute: 59, 
-              second: 59, 
+              hour: 0, 
+              minute: 48, 
+              second: 48, 
               // millisecond: 999,
             },
           }}

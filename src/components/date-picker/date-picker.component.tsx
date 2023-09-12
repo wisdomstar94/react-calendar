@@ -1145,13 +1145,16 @@ export function DatePicker(props: IDatePicker.Props) {
                               if (isCalendarPickAutoClose({ pickType, timeType, rangeType, editType: 'date' }) === true) {
                                 if (typeof setIsShow === 'function') setIsShow(prev => false);
                               }
+
+                              let newDate: Date | undefined;
                               if (selectedDate === undefined) {
-                                setSelectedDateProxy(DateTime.fromJSDate(item.date).set({ hour: defaultValues?.single?.hour, minute: defaultValues?.single?.minute, second: defaultValues?.single?.second, millisecond: defaultValues?.single?.millisecond }).toJSDate());  
-                                if (typeof onValueChange === 'function') onValueChange(``);
+                                newDate = DateTime.fromJSDate(item.date).set({ hour: defaultValues?.single?.hour, minute: defaultValues?.single?.minute, second: defaultValues?.single?.second, millisecond: defaultValues?.single?.millisecond }).toJSDate();
                               } else {
-                                setSelectedDateProxy(DateTime.fromJSDate(item.date).set({ hour: selectedDate?.getHours(), minute: selectedDate?.getMinutes(), second: selectedDate?.getSeconds() }).toJSDate());
-                                if (typeof onValueChange === 'function') onValueChange(DateTime.fromJSDate(item.date).toFormat(outputFormat));
+                                newDate = DateTime.fromJSDate(item.date).set({ hour: selectedDate?.getHours(), minute: selectedDate?.getMinutes(), second: selectedDate?.getSeconds(), millisecond: selectedDate.getMilliseconds() }).toJSDate();
                               }
+
+                              setSelectedDateProxy(newDate);  
+                              if (typeof onValueChange === 'function') onValueChange(DateTime.fromJSDate(newDate).toFormat(outputFormat));
                             }
 
                             if (rangeType === 'range') {
