@@ -1,7 +1,7 @@
 {
   "name": "@wisdomstar94/react-calendar",
   "license": "MIT",
-  "version": "0.0.34-test.1",
+  "version": "0.0.34",
   "keywords": [
     "react",
     "date-picker",
@@ -21,7 +21,8 @@
   "main": "index.ts",
   "repository": "https://github.com/wisdomstar94/react-calendar",
   "peerDependencies": {
-    "react": "^18.2.0"
+    "react": "^18.2.0",
+    "react-dom": "18.2.0"
   },
   "devDependencies": {
     "@types/luxon": "^3.3.2",
