@@ -1023,7 +1023,6 @@ export function DatePicker(props: IDatePicker.Props) {
                               let newSelectedRangeDate: IDatePicker.RangeDate | undefined;
                               if (rangeDateControlTarget === 'start') {
                                 const start: Date = DateTime.fromJSDate(selectedRangeDate?.start ?? new Date()).set({ year: date.getFullYear(), month: date.getMonth() + 1 }).toJSDate();
-                                console.log('@@@start', start);
                                 if (selectedRangeDate?.end !== undefined) {
                                   if (start.getTime() > selectedRangeDate.end.getTime()) {
                                     console.error(`시작 월은 종료 월보다 이후일 수 없습니다.`);
@@ -1038,7 +1037,6 @@ export function DatePicker(props: IDatePicker.Props) {
                                 setSelectedRangeDateProxy(newSelectedRangeDate);
                               } else if (rangeDateControlTarget === 'end') {
                                 const end: Date = DateTime.fromJSDate(selectedRangeDate?.end ?? new Date()).set({ year: date.getFullYear(), month: date.getMonth() + 1 }).toJSDate();
-                                console.log('@@@end', end);
                                 if (selectedRangeDate?.start !== undefined) {
                                   if (selectedRangeDate?.start.getTime() > end.getTime()) {
                                     console.error(`종료 월은 시작 월보다 이전일 수 없습니다.`);
