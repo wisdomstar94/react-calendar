@@ -27,12 +27,12 @@ export default function Page() {
   useEffect(() => {
     if (init === false) return;
 
-    setSelectedRangeDate({
-      start: new Date(`2023-02-04 02:11:22`),
-      end: new Date(`2023-09-22 23:33:44`),
-    });
+    // setSelectedRangeDate({
+    //   start: new Date(`2023-02-04 02:11:22`),
+    //   end: new Date(`2023-09-22 23:33:44`),
+    // });
 
-    setSelectedDate(new Date(`2023-09-04 03:55:55`));
+    // setSelectedDate(new Date(`2023-09-04 03:55:55`));
 
     // setTimeout(() => {
     //   setSelectedRangeDate({
@@ -81,7 +81,7 @@ export default function Page() {
           setSelectedRangeDate={setSelectedRangeDate} 
           isMatchInputWidth={true} 
           rangeType="range"
-          pickType={pickType}
+          pickType={"month"}
           // timeType="hour"
           isApplyFullSizeWhenDisplayEscape={false}
           rangeDivideString={'-->'}
@@ -150,9 +150,9 @@ export default function Page() {
           isMatchInputWidth={true} 
           isApplyFullSizeWhenDisplayEscape={true}
           rangeType="single"
-          pickType={"datetime"} 
+          pickType={"month"} 
           timeType="hour"
-          outputFormat={"yyyy-MM-dd HH:00"}
+          // outputFormat={"yyyy-MM-dd HH:00"}
           // isCalendarPickAutoClose={(params) => {
           //   return false;
           // }}

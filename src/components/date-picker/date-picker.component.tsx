@@ -319,8 +319,8 @@ export function DatePicker(props: IDatePicker.Props) {
         myValue = `2023-09-09 ` + myValue;
       } else if (pickType === 'month') {
         const myValueSplit = myValue.split(' ');
-        const firstString = myValue.split(' ')[0];
-        if (myValueSplit.length === 1 && firstString.length === 7) {
+        const firstString = myValueSplit[0];
+        if (firstString.length === 7) {
           myValue += '-01';
         }
       }
@@ -1020,47 +1020,40 @@ export function DatePicker(props: IDatePicker.Props) {
                             }
                             
                             if (rangeType === 'range') {
-                              if (selectedRangeDate === undefined) {
-                                setSelectedRangeDateProxy(undefined);
-                              } else {
-                                let newSelectedRangeDate: IDatePicker.RangeDate | undefined;
-                                if (rangeDateControlTarget === 'start') {
-                                  let start: Date | undefined = undefined;
-                                  if (selectedRangeDate.start !== undefined) {
-                                    start = DateTime.fromJSDate(selectedRangeDate.start).set({ year: date.getFullYear(), month: date.getMonth() + 1 }).toJSDate();
-                                    if (selectedRangeDate.end !== undefined) {
-                                      if (start.getTime() > selectedRangeDate.end.getTime()) {
-                                        console.error(`시작 월은 종료 월보다 이후일 수 없습니다.`);
-                                        return;
-                                      }
-                                    }
+                              let newSelectedRangeDate: IDatePicker.RangeDate | undefined;
+                              if (rangeDateControlTarget === 'start') {
+                                const start: Date = DateTime.fromJSDate(selectedRangeDate?.start ?? new Date()).set({ year: date.getFullYear(), month: date.getMonth() + 1 }).toJSDate();
+                                console.log('@@@start', start);
+                                if (selectedRangeDate?.end !== undefined) {
+                                  if (start.getTime() > selectedRangeDate.end.getTime()) {
+                                    console.error(`시작 월은 종료 월보다 이후일 수 없습니다.`);
+                                    return;
                                   }
-
-                                  newSelectedRangeDate = {
-                                    start,
-                                    end: selectedRangeDate.end,
-                                  };
-                                  setSelectedRangeDateProxy(newSelectedRangeDate);
-                                } else if (rangeDateControlTarget === 'end') {
-                                  let end: Date | undefined = undefined;
-                                  if (selectedRangeDate.end !== undefined) {
-                                    end = DateTime.fromJSDate(selectedRangeDate.end).set({ year: date.getFullYear(), month: date.getMonth() + 1 }).toJSDate();
-                                    if (selectedRangeDate.start !== undefined) {
-                                      if (selectedRangeDate.start.getTime() > end.getTime()) {
-                                        console.error(`종료 월은 시작 월보다 이전일 수 없습니다.`);
-                                        return;
-                                      }
-                                    }
-                                  }
-                                  newSelectedRangeDate = {
-                                    start: selectedRangeDate.start,
-                                    end,
-                                  };
-                                  setSelectedRangeDateProxy(newSelectedRangeDate);
                                 }
 
-                                if (typeof onValueChange === 'function') onValueChange(getRangeInputValue(newSelectedRangeDate));
+                                newSelectedRangeDate = {
+                                  start,
+                                  end: selectedRangeDate?.end,
+                                };
+                                setSelectedRangeDateProxy(newSelectedRangeDate);
+                              } else if (rangeDateControlTarget === 'end') {
+                                const end: Date = DateTime.fromJSDate(selectedRangeDate?.end ?? new Date()).set({ year: date.getFullYear(), month: date.getMonth() + 1 }).toJSDate();
+                                console.log('@@@end', end);
+                                if (selectedRangeDate?.start !== undefined) {
+                                  if (selectedRangeDate?.start.getTime() > end.getTime()) {
+                                    console.error(`종료 월은 시작 월보다 이전일 수 없습니다.`);
+                                    return;
+                                  }
+                                }
+
+                                newSelectedRangeDate = {
+                                  start: selectedRangeDate?.start,
+                                  end,
+                                };
+                                setSelectedRangeDateProxy(newSelectedRangeDate);
                               }
+
+                              if (typeof onValueChange === 'function') onValueChange(getRangeInputValue(newSelectedRangeDate));
                             }
                           }}
                           >
