@@ -262,6 +262,7 @@
 .date-picker-contaienr .date-picker .times-area .time-block:first-child {
   margin-left: 0;
 }
+
 .select-box {
   -webkit-appearance: none !important;
   -moz-appearance: none !important;
@@ -317,7 +318,7 @@
   border: 1px solid #ccc;
   align-items: center;
   justify-content: flex-start;
-  padding: 4px 0;
+  padding: 4px;
   cursor: pointer;
 }
 .range-item-container:hover {
@@ -334,13 +335,14 @@
 }
 
 .range-item-container .label {
+  width: 32px;
   display: inline-flex;
   position: relative;
-  width: 40px;
-  justify-content: center;
+  justify-content: flex-start;
   color: #666;
 }
 .range-item-container .date-input {
+  width: 82px;
   display: inline-flex;
   position: relative;
   --tw-numeric-spacing: tabular-nums;
@@ -378,7 +380,7 @@
 
 /* layoutType: month */
 .range-item-container.month .label {
-  width: 40px;
+  /* width: 40px; */
 }
 .range-item-container.month .date-input {
   width: calc(100% - 40px);
@@ -398,10 +400,10 @@
 
 /* layoutType: date */
 .range-item-container.date .label {
-  width: 40px;
+  /* width: 40px; */
 }
 .range-item-container.date .date-input {
-  width: calc(100% - 40px);
+  /* width: calc(100% - 40px); */
 }
 .range-item-container.date .time-unit-list {
   display: none;
@@ -423,13 +425,13 @@
 
 /* layoutType: datetime-hour */
 .range-item-container.datetime-hour .label {
-  width: 40px;
+  /* width: 40px; */
 }
 .range-item-container.datetime-hour .date-input {
-  width: 90px;
+  /* width: 90px; */
 }
 .range-item-container.datetime-hour .time-unit-list {
-  width: calc(100% - (40px + 90px));
+  /* width: calc(100% - (40px + 90px)); */
 }
 .range-item-container.datetime-hour .time-unit-list .hour-block {
   display: inline-flex;
@@ -443,13 +445,13 @@
 
 /* layoutType: datetime-hour-minute */
 .range-item-container.datetime-hour-minute .label {
-  width: 40px;
+  /* width: 40px; */
 }
 .range-item-container.datetime-hour-minute .date-input {
-  width: 90px;
+  /* width: 90px; */
 }
 .range-item-container.datetime-hour-minute .time-unit-list {
-  width: calc(100% - (40px + 90px));
+  /* width: calc(100% - (40px + 90px)); */
 }
 .range-item-container.datetime-hour-minute .time-unit-list .hour-block {
   display: inline-flex;
@@ -463,13 +465,13 @@
 
 /* layoutType: datetime-hour-minute-second */
 .range-item-container.datetime-hour-minute-second .label {
-  width: 40px;
+  /* width: 40px; */
 }
 .range-item-container.datetime-hour-minute-second .date-input {
-  width: 90px;
+  /* width: 90px; */
 }
 .range-item-container.datetime-hour-minute-second .time-unit-list {
-  width: calc(100% - (40px + 90px));
+  /* width: calc(100% - (40px + 90px)); */
 }
 .range-item-container.datetime-hour-minute-second .time-unit-list .hour-block {
   display: inline-flex;
@@ -483,13 +485,13 @@
 
 /* layoutType: time-hour */
 .range-item-container.time-hour .label {
-  width: 40px;
+  /* width: 40px; */
 }
 .range-item-container.time-hour .date-input {
   display: none;
 }
 .range-item-container.time-hour .time-unit-list {
-  width: calc(100% - 40px);
+  /* width: calc(100% - 40px); */
 }
 .range-item-container.time-hour .time-unit-list .hour-block {
   display: inline-flex;
@@ -503,13 +505,13 @@
 
 /* layoutType: time-hour-minute */
 .range-item-container.time-hour-minute .label {
-  width: 40px;
+  /* width: 40px; */
 }
 .range-item-container.time-hour-minute .date-input {
   display: none;
 }
 .range-item-container.time-hour-minute .time-unit-list {
-  width: calc(100% - 40px);
+  /* width: calc(100% - 40px); */
 }
 .range-item-container.time-hour-minute .time-unit-list .hour-block {
   display: inline-flex;
@@ -523,13 +525,13 @@
 
 /* layoutType: time-hour-minute-second */
 .range-item-container.time-hour-minute-second .label {
-  width: 40px;
+  /* width: 40px; */
 }
 .range-item-container.time-hour-minute-second .date-input {
   display: none;
 }
 .range-item-container.time-hour-minute-second .time-unit-list {
-  width: calc(100% - 40px);
+  /* width: calc(100% - 40px); */
 }
 .range-item-container.time-hour-minute-second .time-unit-list .hour-block {
   display: inline-flex;

@@ -140,5 +140,6 @@ export declare namespace IDatePicker {
     isCalendarPickAutoClose: (params: CalendarPickAutoCloseParams) => boolean;
     selectedRangeDate: undefined | RangeDate;
     setSelectedRangeDateProxy: (rangeDate: IDatePicker.RangeDate | undefined) => void;
+    defaultValues: DefaultValues | undefined;
   }
 }

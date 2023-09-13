@@ -57,6 +57,21 @@ export function DatePicker(props: IDatePicker.Props) {
   const prevInputRectInfo = useRef<DOMRect>();
   const disposeSizeAndPositionRequestAnimationFrame = useRef<number>();
 
+  const hourSingleAlternative = useMemo(() => {
+    const defaultValue = defaultValues?.single?.hour;
+    return defaultValue?.toString().padStart(2, '0') ?? '00';
+  }, [defaultValues?.single?.hour]);
+
+  const minuteSingleAlternative = useMemo(() => {
+    const defaultValue = defaultValues?.single?.minute;
+    return defaultValue?.toString().padStart(2, '0') ?? '00';
+  }, [defaultValues?.single?.minute]);
+
+  const secondSingleAlternative = useMemo(() => {
+    const defaultValue = defaultValues?.single?.second;
+    return defaultValue?.toString().padStart(2, '0') ?? '00';
+  }, [defaultValues?.single?.second]);
+
   const getSystemOutputFormat = useCallback(() => {
     let timeFormat = ``;
     switch(timeType) {
@@ -323,10 +338,7 @@ export function DatePicker(props: IDatePicker.Props) {
 
     if (rangeType === 'single') {
       const convertInfo = getConvertInfo(value);
-      if (convertInfo.isValid) {
-        setSelectedDateProxy(convertInfo.date);
-        // if (typeof onSelect === 'function') onSelect(luxonObj.toJSDate(), luxonObj.toFormat(outputFormat));
-      } 
+      setSelectedDateProxy(convertInfo.date);
       prevValue.current = value;
     }
     
@@ -927,6 +939,7 @@ export function DatePicker(props: IDatePicker.Props) {
                   isSelected={rangeDateControlTarget === 'start'}
                   selectedRangeDate={selectedRangeDate}
                   setSelectedRangeDateProxy={setSelectedRangeDateProxy}
+                  defaultValues={defaultValues}
                   onClick={() => {
                     setRangeDateControlTarget('start');
                     if (selectedRangeDate?.start !== undefined) {
@@ -947,6 +960,7 @@ export function DatePicker(props: IDatePicker.Props) {
                   isSelected={rangeDateControlTarget === 'end'}
                   selectedRangeDate={selectedRangeDate}
                   setSelectedRangeDateProxy={setSelectedRangeDateProxy}
+                  defaultValues={defaultValues}
                   onClick={() => {
                     setRangeDateControlTarget('end');
                     if (selectedRangeDate?.end !== undefined) {
@@ -1240,7 +1254,7 @@ export function DatePicker(props: IDatePicker.Props) {
                   <SelectBoxArrowIcon />
                   <select 
                     className={styles['select-box']} 
-                    value={selectedDate?.getHours().toString().padStart(2, '0')}
+                    value={selectedDate?.getHours().toString().padStart(2, '0') ?? hourSingleAlternative}
                     onChange={(event) => {
                       const _value = event.target.value;
                       if (selectedDate === undefined) {
@@ -1275,7 +1289,7 @@ export function DatePicker(props: IDatePicker.Props) {
                   <SelectBoxArrowIcon />
                   <select 
                     className={styles['select-box']} 
-                    value={selectedDate?.getMinutes().toString().padStart(2, '0')}
+                    value={selectedDate?.getMinutes().toString().padStart(2, '0') ?? minuteSingleAlternative}
                     onChange={(event) => {
                       const _value = event.target.value;
                       if (selectedDate === undefined) {
@@ -1310,7 +1324,7 @@ export function DatePicker(props: IDatePicker.Props) {
                   <SelectBoxArrowIcon />
                   <select 
                     className={styles['select-box']} 
-                    value={selectedDate?.getSeconds().toString().padStart(2, '0')}
+                    value={selectedDate?.getSeconds().toString().padStart(2, '0') ?? secondSingleAlternative}
                     onChange={(event) => {
                       const _value = event.target.value;
                       if (selectedDate === undefined) {
@@ -1370,6 +1384,7 @@ function RangeItemContainer(props: IDatePicker.RangeItemContainerProps) {
     setIsShow,
     selectedRangeDate,
     setSelectedRangeDateProxy,
+    defaultValues,
   } = props;
 
   const layoutType = useMemo<IDatePicker.RangeItemContainerLayoutType>(() => {
@@ -1397,6 +1412,21 @@ function RangeItemContainer(props: IDatePicker.RangeItemContainerProps) {
   const selectedDate = useMemo(() => {
     return target === 'start' ? selectedRangeDate?.start : selectedRangeDate?.end;
   }, [selectedRangeDate?.end, selectedRangeDate?.start, target]);
+
+  const hourAlternative = useMemo(() => {
+    const defaultValue = target === 'start' ? defaultValues?.range?.start?.hour : defaultValues?.range?.end?.hour;
+    return defaultValue?.toString().padStart(2, '0') ?? '00';
+  }, [defaultValues?.range?.end?.hour, defaultValues?.range?.start?.hour, target]);
+
+  const minuteAlternative = useMemo(() => {
+    const defaultValue = target === 'start' ? defaultValues?.range?.start?.minute : defaultValues?.range?.end?.minute;
+    return defaultValue?.toString().padStart(2, '0') ?? '00';
+  }, [defaultValues?.range?.end?.minute, defaultValues?.range?.start?.minute, target]);
+
+  const secondAlternative = useMemo(() => {
+    const defaultValue = target === 'start' ? defaultValues?.range?.start?.second : defaultValues?.range?.end?.second;
+    return defaultValue?.toString().padStart(2, '0') ?? '00';
+  }, [defaultValues?.range?.end?.second, defaultValues?.range?.start?.second, target]);
 
   const getDateValue = useCallback((): string => {
     if (selectedRangeDate === undefined) return ``;
@@ -1440,7 +1470,7 @@ function RangeItemContainer(props: IDatePicker.RangeItemContainerProps) {
             <SelectBoxArrowIcon />
             <select 
               className={styles['select-box']} 
-              value={selectedDate?.getHours().toString().padStart(2, '0')}
+              value={selectedDate?.getHours().toString().padStart(2, '0') ?? hourAlternative}
               onChange={(event) => {
                 const _value = event.target.value;
 
@@ -1496,7 +1526,7 @@ function RangeItemContainer(props: IDatePicker.RangeItemContainerProps) {
             <SelectBoxArrowIcon />
             <select 
               className={styles['select-box']} 
-              value={selectedDate?.getMinutes().toString().padStart(2, '0')}
+              value={selectedDate?.getMinutes().toString().padStart(2, '0') ?? minuteAlternative}
               onChange={(event) => {
                 const _value = event.target.value;
 
@@ -1552,7 +1582,7 @@ function RangeItemContainer(props: IDatePicker.RangeItemContainerProps) {
             <SelectBoxArrowIcon />
             <select 
               className={styles['select-box']} 
-              value={selectedDate?.getSeconds().toString().padStart(2, '0')}
+              value={selectedDate?.getSeconds().toString().padStart(2, '0') ?? secondAlternative}
               onChange={(event) => {
                 const _value = event.target.value;
 
