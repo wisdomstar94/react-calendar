@@ -774,8 +774,12 @@ export function DatePicker(props: IDatePicker.Props) {
           setCurrentCalendarInfo(calendar.getDayCalendarInfo(new Date()));
         }
       } else {
-        if (typeof onValueChange === 'function' && selectedRangeDate !== undefined) {
-          onValueChange(getRangeInputValue(selectedRangeDate));
+        if (typeof onValueChange === 'function') {
+          if (selectedRangeDate !== undefined) {
+            onValueChange(getRangeInputValue(selectedRangeDate));
+          } else {
+            onValueChange('');
+          }
         }
       }
       return;
@@ -789,7 +793,13 @@ export function DatePicker(props: IDatePicker.Props) {
           setCurrentCalendarInfo(calendar.getDayCalendarInfo(new Date()));
         }
       } else {
-        if (typeof onValueChange === 'function' && selectedDate !== undefined) onValueChange(DateTime.fromJSDate(selectedDate).toFormat(outputFormat));
+        if (typeof onValueChange === 'function') {
+          if (selectedDate !== undefined) {
+            onValueChange(DateTime.fromJSDate(selectedDate).toFormat(outputFormat));
+          } else {
+            onValueChange('');
+          }
+        }
       }
       return;
     }
