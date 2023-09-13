@@ -5,6 +5,7 @@ import { createPortal } from "react-dom";
 import { useCalendar } from "../../..";
 import { IUseCalendar } from "@/hooks/use-calendar/use-calendar.interface";
 import { DateTime } from "luxon";
+import { useAddEventListener } from "@wisdomstar94/react-add-event-listener";
 
 const portalElementId = `date-picker-root-portal`;
 const spacing = 6;
@@ -110,18 +111,29 @@ export function DatePicker(props: IDatePicker.Props) {
 
   const latestTypingDate = useRef<Date>();
   const prevValue = useRef('');
-  
-  const getInputElement = useCallback((): HTMLInputElement | null => {
-    let element: HTMLInputElement | null = null;
-    if (inputSelector?.ref !== undefined) {
-      element = inputSelector.ref.current;
-    } else if (typeof inputSelector?.selector === 'string') {
-      element = document.querySelector<HTMLInputElement>(inputSelector.selector);
-    } else if (inputSelector?.element !== undefined) {
-      element = inputSelector.element;
-    }
-    return element;
-  }, [inputSelector?.element, inputSelector?.ref, inputSelector?.selector]);
+
+  const inputElement = useMemo(() => {
+    if (!isExistPortal) return null;
+
+    const fn = () => {
+      let element: HTMLInputElement | null = null;
+      if (inputSelector?.ref !== undefined) {
+        element = inputSelector.ref.current;
+      } else if (typeof inputSelector?.selector === 'string') {
+        element = document.querySelector<HTMLInputElement>(inputSelector.selector);
+      } else if (inputSelector?.element !== undefined) {
+        element = inputSelector.element;
+      }
+      return element;
+    };
+    return fn();
+  }, [inputSelector?.element, inputSelector?.ref, inputSelector?.selector, isExistPortal]);
+
+  const inputElementRef = useMemo(() => {
+    return {
+      current: inputElement,
+    };
+  }, [inputElement]);
 
   const isBlockDate = useCallback((date: Date) => {
     if (allowSelectDates === undefined) return false;
@@ -186,7 +198,7 @@ export function DatePicker(props: IDatePicker.Props) {
   const getDatePickerContainerStyle = useCallback((): CSSProperties | undefined => {
     if (direction === undefined) return undefined;
     if (direction.isFull !== true) {
-      const elementClientXY = getElementClientXY(getInputElement());
+      const elementClientXY = getElementClientXY(inputElement);
       const windowWidth = getWindowWidth();
       const windowHeight = getWindowHeight();
 
@@ -216,7 +228,7 @@ export function DatePicker(props: IDatePicker.Props) {
       top: 0,
       left: 0,
     };
-  }, [applyWidth, direction, getInputElement]);
+  }, [applyWidth, direction, inputElement]);
 
   function getWindowWidth() {
     if (typeof window === 'undefined') return 0;
@@ -239,42 +251,6 @@ export function DatePicker(props: IDatePicker.Props) {
     return classNames.join(' ');
   }, [direction?.isFull, isShow]);
 
-  const resizeCallback = useRef(() => {
-    disposeSizeAndPosition();
-  });
-  
-  const inputFocusCallback = useRef(() => {
-    if (typeof setIsShow === 'function') setIsShow(true);
-  });
-
-  const windowClickCallback = useRef((event: MouseEvent | TouchEvent) => {
-    let clientX = 0;
-    let clientY = 0;
-    if (event instanceof MouseEvent) {
-      clientX = event.clientX;
-      clientY = event.clientY;
-    } else if (event instanceof TouchEvent) {
-      clientX = event.touches[0].clientX;
-      clientY = event.touches[0].clientY;
-    }
-
-    const pointElement = document.elementFromPoint(clientX, clientY);
-
-    let currentElement = pointElement;
-    let isThisExist = false;
-    for (let i = 0; i < 20; i++) {
-      if (currentElement === datePickerContainerRef.current || currentElement === getInputElement()) {
-        isThisExist = true;
-        break;
-      }
-      currentElement = currentElement?.parentElement ?? null;
-    }
-
-    if (!isThisExist) {
-      if (typeof setIsShow === 'function') setIsShow(prev => false);
-    }
-  });
-
   function parsingTimeString(value: string) {
     if (typeof value !== 'string') return 'none' as const;
     
@@ -292,89 +268,6 @@ export function DatePicker(props: IDatePicker.Props) {
 
     return 'none' as const;
   }
-
-  const inputOnKeyDownCallback = useRef((event: KeyboardEvent) => {
-    if (event.key.toLowerCase() === 'tab') {
-      setIsShow(prev => false);
-    }
-  });
-
-  const inputOnKeyUpCallback = useRef((event: KeyboardEvent) => {
-    latestTypingDate.current = new Date();
-    let value = (event.target as any)?.value;
-    if (typeof value !== 'string') { prevValue.current = value; return; }
-    if (prevValue.current === value) return;
-
-    const getConvertInfo = (_value: string) => {
-      let isValid: boolean = false;
-      let date: Date | undefined = undefined;
-
-      let myValue = _value;
-      if (pickType === 'time') {
-        const parsingTimeType = parsingTimeString(myValue);
-        switch(parsingTimeType) {
-          case 'HH': myValue += ':00:00'; break;
-          case 'HH:mm': myValue += ':00'; break;
-        }
-        myValue = `2023-09-09 ` + myValue;
-      } else if (pickType === 'month') {
-        const myValueSplit = myValue.split(' ');
-        const firstString = myValueSplit[0];
-        if (firstString.length === 7) {
-          myValue += '-01';
-        }
-      }
-      const luxonObj = DateTime.fromSQL(myValue);
-      isValid = luxonObj.isValid;
-      if (isValid) {
-        date = luxonObj.toJSDate();
-      }
-
-      return {
-        isValid,
-        date,
-      };  
-    };
-
-    if (rangeType === 'single') {
-      const convertInfo = getConvertInfo(value);
-      setSelectedDateProxy(convertInfo.date);
-      prevValue.current = value;
-    }
-    
-    const disposeRange = () => {
-      const valueSplit = value.split(rangeDivideString);
-      if (valueSplit.length === 2) {
-        const startValue = valueSplit[0].trim();
-        const endValue = valueSplit[1].trim();
-
-        const startValueConvertInfo = getConvertInfo(startValue);
-        const endValueConvertInfo = getConvertInfo(endValue);
-
-        let startDate = startValueConvertInfo.date;
-        let endDate = endValueConvertInfo.date;
-
-        const rangeDate: IDatePicker.RangeDate = {
-          start: startDate,
-          end: endDate,
-        };
-
-        if (rangeDate.start !== undefined && rangeDate.end !== undefined) {
-          if (rangeDate.start.getTime() > rangeDate.end.getTime()) {
-            rangeDate.start = rangeDate.end;
-            if (typeof onValueChange === 'function') onValueChange(getRangeInputValue(rangeDate));
-          }
-        }
-
-        setSelectedRangeDateProxy(rangeDate);
-      }
-    };
-
-    if (rangeType === 'range') {
-      disposeRange();
-      prevValue.current = value;
-    }
-  });
 
   const finallySelectedDateInfo = useMemo<IUseCalendar.SelectedDate>(() => {
     if (rangeType === 'single') return selectedDate;
@@ -444,14 +337,13 @@ export function DatePicker(props: IDatePicker.Props) {
     };
   }
 
-  function disposeSizeAndPosition() {
+  const disposeSizeAndPosition = useCallback(() => {
     if (typeof window === 'undefined') return;
     // if (isShow !== true) return;
 
     const windowWidth = getWindowWidth();
     const windowHeight = getWindowHeight();
-
-    const inputElement = getInputElement();
+    
     if (inputElement === null) return;  
     setInputWidth(inputElement.getBoundingClientRect().width);
 
@@ -489,9 +381,9 @@ export function DatePicker(props: IDatePicker.Props) {
     }
 
     setDirection(_direction);
-  }
+  }, [applyWidth, inputElement, isApplyFullSizeWhenDisplayEscape]);
 
-  function getApplyDefaultValuesInfo(date: Date | undefined, thisDefaultValues: IDatePicker.SingleDefaultValues | undefined) {
+  const getApplyDefaultValuesInfo = useCallback((date: Date | undefined, thisDefaultValues: IDatePicker.SingleDefaultValues | undefined) => {
     const info: { 
       isMustApply: boolean;
       afterDefaultValueDate: Date | undefined;
@@ -529,9 +421,9 @@ export function DatePicker(props: IDatePicker.Props) {
     }
 
     return info;
-  }
+  }, [getSystemOutputFormat]);
 
-  function setSelectedDateProxy(date: Date | undefined) {
+  const setSelectedDateProxy = useCallback((date: Date | undefined) => {
     if (date === undefined) {
       if (typeof setSelectedDate === 'function') setSelectedDate(prev => undefined); 
       return;
@@ -545,9 +437,9 @@ export function DatePicker(props: IDatePicker.Props) {
     }
 
     if (typeof setSelectedDate === 'function') setSelectedDate(prev => applyDate); 
-  }
+  }, [defaultValues?.single, getApplyDefaultValuesInfo, setSelectedDate]);
 
-  function setSelectedRangeDateProxy(rangeDate: IDatePicker.RangeDate | undefined) {
+  const setSelectedRangeDateProxy = useCallback((rangeDate: IDatePicker.RangeDate | undefined) => {
     if (typeof rangeDate === undefined) {
       if (typeof setSelectedRangeDate === 'function') {
         setSelectedRangeDate(prev => undefined); 
@@ -570,7 +462,7 @@ export function DatePicker(props: IDatePicker.Props) {
     }
 
     if (typeof setSelectedRangeDate === 'function') setSelectedRangeDate(prev => ({ start: startDate, end: endDate }));
-  }
+  }, [defaultValues?.range?.end, defaultValues?.range?.start, getApplyDefaultValuesInfo, setSelectedRangeDate]);
 
   function getApplyForceDefaultValue(
     selectedDate: Date | undefined,
@@ -654,6 +546,183 @@ export function DatePicker(props: IDatePicker.Props) {
     return undefined;
   }
 
+  const windowResizeOrScrollCallback = useCallback((event: Event) => {
+    disposeSizeAndPosition();
+  }, [disposeSizeAndPosition]);
+
+  useAddEventListener({
+    windowEventRequiredInfo: {
+      eventName: 'resize',
+      eventListener: windowResizeOrScrollCallback,
+    },
+  });
+
+  useAddEventListener({
+    windowEventRequiredInfo: {
+      eventName: 'scroll',
+      eventListener: windowResizeOrScrollCallback,
+    },
+  });
+
+  const inputFocusCallback = useCallback((event: FocusEvent) => {
+    if (typeof setIsShow === 'function') setIsShow(true);
+  }, [setIsShow]);
+
+  useAddEventListener({
+    domEventRequiredInfo: {
+      target: inputElementRef,
+      eventName: 'focus',
+      eventListener: inputFocusCallback,
+    },
+  });
+
+  const windowClickCallback = useCallback((event: MouseEvent | TouchEvent) => {
+    let clientX = 0;
+    let clientY = 0;
+    if (event instanceof MouseEvent) {
+      clientX = event.clientX;
+      clientY = event.clientY;
+    } else if (event instanceof TouchEvent) {
+      clientX = event.touches[0].clientX;
+      clientY = event.touches[0].clientY;
+    }
+
+    const pointElement = document.elementFromPoint(clientX, clientY);
+
+    let currentElement = pointElement;
+    let isThisExist = false;
+    for (let i = 0; i < 20; i++) {
+      if (currentElement === datePickerContainerRef.current || currentElement === inputElement) {
+        isThisExist = true;
+        break;
+      }
+      currentElement = currentElement?.parentElement ?? null;
+    }
+
+    if (!isThisExist) {
+      if (typeof setIsShow === 'function') setIsShow(prev => false);
+    }
+  }, [inputElement, setIsShow]);
+
+  useAddEventListener({
+    windowEventRequiredInfo: {
+      eventName: 'click',
+      eventListener: windowClickCallback,
+    }
+  });
+
+  const inputKeydownCallback = useCallback((event: KeyboardEvent) => {
+    if (event.key.toLowerCase() === 'tab') {
+      setIsShow(prev => false);
+    }
+  }, [setIsShow]);
+
+  useAddEventListener({
+    domEventRequiredInfo: {
+      target: inputElementRef,
+      eventName: 'keydown',
+      eventListener: inputKeydownCallback,
+    },
+  });
+
+  const inputKeyupCallback = useCallback((event: KeyboardEvent) => {
+    latestTypingDate.current = new Date();
+    let value = (event.target as any)?.value;
+
+    if (typeof value !== 'string') { prevValue.current = value; return; }
+    if (prevValue.current === value) return;
+
+    const getConvertInfo = (_value: string) => {
+      let isValid: boolean = false;
+      let date: Date | undefined = undefined;
+
+      let myValue = _value;
+      if (pickType === 'time') {
+        const parsingTimeType = parsingTimeString(myValue);
+        switch(parsingTimeType) {
+          case 'HH': myValue += ':00:00'; break;
+          case 'HH:mm': myValue += ':00'; break;
+        }
+        myValue = `2023-09-09 ` + myValue;
+      } else if (pickType === 'month') {
+        const myValueSplit = myValue.split(' ');
+        const firstString = myValueSplit[0];
+        if (firstString.length === 7) {
+          myValue += '-01';
+        }
+      }
+      const luxonObj = DateTime.fromSQL(myValue);
+      isValid = luxonObj.isValid;
+      if (isValid) {
+        date = luxonObj.toJSDate();
+      }
+
+      return {
+        isValid,
+        date,
+      };  
+    };
+
+    if (rangeType === 'single') {
+      const convertInfo = getConvertInfo(value);
+      setSelectedDateProxy(convertInfo.date);
+      prevValue.current = value;
+    }
+    
+    const disposeRange = () => {
+      const valueSplit = value.split(rangeDivideString);
+      if (valueSplit.length === 2) {
+        const startValue = valueSplit[0].trim();
+        const endValue = valueSplit[1].trim();
+
+        const startValueConvertInfo = getConvertInfo(startValue);
+        const endValueConvertInfo = getConvertInfo(endValue);
+
+        let startDate = startValueConvertInfo.date;
+        let endDate = endValueConvertInfo.date;
+
+        const rangeDate: IDatePicker.RangeDate = {
+          start: startDate,
+          end: endDate,
+        };
+
+        if (rangeDate.start !== undefined && rangeDate.end !== undefined) {
+          if (rangeDate.start.getTime() > rangeDate.end.getTime()) {
+            rangeDate.start = rangeDate.end;
+            if (typeof onValueChange === 'function') onValueChange(getRangeInputValue(rangeDate));
+          }
+        }
+
+        setSelectedRangeDateProxy(rangeDate);
+      }
+    };
+
+    if (rangeType === 'range') {
+      disposeRange();
+      prevValue.current = value;
+    }
+  }, [getRangeInputValue, onValueChange, pickType, rangeDivideString, rangeType, setSelectedDateProxy, setSelectedRangeDateProxy]);
+
+  useAddEventListener({
+    domEventRequiredInfo: {
+      target: inputElementRef,
+      eventName: 'keyup',
+      eventListener: inputKeyupCallback,
+    },
+  });
+
+  const inputClickCallback = useCallback((event: MouseEvent | TouchEvent) => {
+    setIsShow(prev => true);
+  }, [setIsShow]);
+
+  useAddEventListener({
+    domEventRequiredInfo: {
+      target: inputElementRef,
+      eventName: 'click',
+      eventListener: inputClickCallback,
+    },
+  });
+
   useEffect(() => {
     if (isExistPortal !== true) return;
 
@@ -663,7 +732,7 @@ export function DatePicker(props: IDatePicker.Props) {
       }
 
       const call = (step: number) => {
-        const currentInputRectInfo = getInputElement()?.getBoundingClientRect();
+        const currentInputRectInfo = inputElement?.getBoundingClientRect();
         if (prevInputRectInfo.current !== undefined && currentInputRectInfo !== undefined) {
           if (
             currentInputRectInfo.width !== prevInputRectInfo.current.width || 
@@ -694,38 +763,6 @@ export function DatePicker(props: IDatePicker.Props) {
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isShow, isExistPortal]);
-  
-  useEffect(() => {
-    const callback = resizeCallback.current;
-    callback();
-
-    if (typeof window !== 'undefined') {
-      window.removeEventListener('resize', callback);
-      window.removeEventListener('scroll', callback);
-
-      window.addEventListener('resize', callback);
-      window.addEventListener('scroll', callback);
-    }
-    return () => {
-      if (typeof window !== 'undefined') {
-        window.removeEventListener('resize', callback);
-        window.removeEventListener('scroll', callback);
-      } 
-    };
-  }, []);
-
-  useEffect(() => {
-    const callback = windowClickCallback.current;
-    if (typeof window !== 'undefined') {
-      window.removeEventListener('click', callback);
-      window.addEventListener('click', callback);
-    }
-    return () => {
-      if (typeof window !== 'undefined') {
-        window.removeEventListener('click', callback);
-      } 
-    };
-  }, []); 
 
   useEffect(() => {
     if (rangeType === 'range') {
@@ -758,34 +795,6 @@ export function DatePicker(props: IDatePicker.Props) {
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isShow, rangeType]);
-
-  useEffect(() => {
-    const callback = inputFocusCallback.current;
-
-    const inputElement = getInputElement();
-    inputElement?.removeEventListener('focus', callback);
-    inputElement?.addEventListener('focus', callback);
-
-    return () => {
-      inputElement?.removeEventListener('focus', callback);
-    };
-  }, [getInputElement]);
-
-  useEffect(() => {
-    const keyDownCallback = inputOnKeyDownCallback.current;
-    const keyUpCallback = inputOnKeyUpCallback.current;
-
-    const inputElement = getInputElement();
-    inputElement?.removeEventListener('keydown', keyDownCallback);
-    inputElement?.addEventListener('keydown', keyDownCallback);
-    inputElement?.removeEventListener('keyup', keyUpCallback);
-    inputElement?.addEventListener('keyup', keyUpCallback);
-
-    return () => {
-      inputElement?.removeEventListener('keydown', keyDownCallback);
-      inputElement?.removeEventListener('keyup', keyUpCallback);
-    };
-  }, [getInputElement]);
 
   useEffect(() => {
     setIsExistPortal((function(){

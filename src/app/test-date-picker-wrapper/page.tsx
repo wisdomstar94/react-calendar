@@ -119,7 +119,7 @@ export default function Page() {
         <div>
           single
         </div>
-        {/* <div>
+        <div>
           pickType :
           <select value={pickType} onChange={e => {
             const value = e.target.value as IDatePicker.PickType;
@@ -131,6 +131,7 @@ export default function Page() {
             <option value="time">time</option>
           </select>
         </div>
+        {/* 
         <div>
           outputFormat :
           <select value={outputFormat} onChange={e => {
@@ -150,7 +151,7 @@ export default function Page() {
           isMatchInputWidth={true} 
           isApplyFullSizeWhenDisplayEscape={true}
           rangeType="single"
-          pickType={"month"} 
+          pickType={pickType} 
           timeType="hour"
           // outputFormat={"yyyy-MM-dd HH:00"}
           // isCalendarPickAutoClose={(params) => {

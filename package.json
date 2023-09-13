@@ -1,7 +1,7 @@
 {
   "name": "@wisdomstar94/react-calendar",
   "license": "MIT",
-  "version": "0.0.33",
+  "version": "0.0.34-test.1",
   "keywords": [
     "react",
     "date-picker",
@@ -21,16 +21,16 @@
   "main": "index.ts",
   "repository": "https://github.com/wisdomstar94/react-calendar",
   "peerDependencies": {
-    "@types/react": "^18.2.15",
-    "@types/react-dom": "^18.2.7",
-    "react": "^18.2.0",
-    "react-dom": "^18.2.0"
+    "react": "^18.2.0"
   },
   "devDependencies": {
+    "@types/luxon": "^3.3.2",
     "@types/node": "20.6.0",
     "@types/react": "18.2.21",
     "@types/react-dom": "18.2.7",
     "autoprefixer": "10.4.15",
+    "esbuild": "^0.19.2",
+    "esbuild-css-modules-plugin": "^3.0.1",
     "eslint": "8.49.0",
     "eslint-config-next": "13.4.19",
     "luxon": "^3.4.3",
@@ -40,8 +40,6 @@
     "react-dom": "18.2.0",
     "tailwindcss": "3.3.3",
     "typescript": "5.2.2",
-    "@types/luxon": "^3.3.2",
-    "esbuild": "^0.19.2",
-    "esbuild-css-modules-plugin": "^3.0.1"
+    "@wisdomstar94/react-add-event-listener": "^0.0.5"
   }
 }
