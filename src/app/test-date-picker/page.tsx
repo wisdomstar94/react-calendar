@@ -82,8 +82,8 @@ export default function Page() {
         selectedRangeDate={selectedRangeDate}
         setSelectedRangeDate={setSelectedRangeDate}
         allowSelectDates={{
-          startDate: new Date('2023-03-03'),
-          endDate: new Date('2023-10-08'),
+          start: { year: 2023, month: 3, day: 3 },
+          end: { year: 2023, month: 10, day: 8 },
         }}
         outputFormat="yyyy-MM-dd HH:00"
         onValueChange={(value) => {

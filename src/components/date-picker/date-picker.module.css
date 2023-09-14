@@ -178,25 +178,37 @@
 }
 
 .date-picker-contaienr .date-picker .year-month-dates-area .dates-area > div.blocked {
-  background-color: #dfdfdf;
+  background-color: #f0f0f0;
   color: #bbb;
 }
 .date-picker-contaienr .date-picker .year-month-dates-area .dates-area > div.blocked.selected {
   background-color: #d6bc36;
-  color: #fff;
+  color: #888;
 }
-.date-picker-contaienr .date-picker .year-month-dates-area .dates-area > div.blocked.selected.prev-or-next-month-date {
-  background-color: #c6b663;
-  color: #fff;
-}
+/* .date-picker-contaienr .date-picker .year-month-dates-area .dates-area > div.blocked.selected.prev-or-next-month-date {
+  background-color: #93843d;
+  color: #888;
+} */
 .date-picker-contaienr .date-picker .year-month-dates-area .dates-area > div.blocked.selected:hover {
   background-color: #dccb76;
 }
 .date-picker-contaienr .date-picker .year-month-dates-area .dates-area > div:nth-child(7n + 1).blocked {
   color: rgb(238, 153, 153);
 }
+.date-picker-contaienr .date-picker .year-month-dates-area .dates-area > div:nth-child(7n + 1).blocked.selected {
+  color: rgb(226, 107, 107);
+}
+.date-picker-contaienr .date-picker .year-month-dates-area .dates-area > div:nth-child(7n + 1).blocked.selected.prev-or-next-month-date {
+  color: rgb(226, 107, 107);
+}
 .date-picker-contaienr .date-picker .year-month-dates-area .dates-area > div:nth-child(7n).blocked {
-  color: rgb(173, 199, 226);
+  color: rgb(152, 189, 228);
+}
+.date-picker-contaienr .date-picker .year-month-dates-area .dates-area > div:nth-child(7n).blocked.selected {
+  color: rgb(98, 158, 222);
+}
+.date-picker-contaienr .date-picker .year-month-dates-area .dates-area > div:nth-child(7n).blocked.selected.prev-or-next-month-date {
+  color: rgb(120, 172, 227);
 }
 .date-picker-contaienr .date-picker .year-month-dates-area .dates-area > div.blocked .wrapper {
   cursor: default;

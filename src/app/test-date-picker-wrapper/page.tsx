@@ -13,11 +13,11 @@ export default function Page() {
   const [outputFormat, setOutputFormat] = useState<string>();
 
   useEffect(() => {
-    console.log(`@@@selectedRangeDate`, selectedRangeDate);
+    // console.log(`@@@selectedRangeDate`, selectedRangeDate);
   }, [selectedRangeDate]);
 
   useEffect(() => {
-    console.log(`@@@selectedDate`, selectedDate);
+    // console.log(`@@@selectedDate`, selectedDate);
   }, [selectedDate]);
 
   useEffect(() => {
@@ -32,7 +32,7 @@ export default function Page() {
       end: new Date(`2023-09-22 23:33:44`),
     });
 
-    setSelectedDate(new Date(`2023-09-04 03:55:55`));
+    setSelectedDate(new Date(`2023-08-04 03:55:55`));
 
     // setTimeout(() => {
     //   setSelectedRangeDate({
@@ -81,7 +81,8 @@ export default function Page() {
           setSelectedRangeDate={setSelectedRangeDate} 
           isMatchInputWidth={true} 
           rangeType="range"
-          pickType={"month"}
+          // pickType={"month"}
+          pickType="datetime"
           // timeType="hour"
           isApplyFullSizeWhenDisplayEscape={false}
           rangeDivideString={'-->'}
@@ -89,6 +90,10 @@ export default function Page() {
           // isCalendarPickAutoClose={(params) => {
           //   return false;
           // }}
+          allowSelectDates={{
+            start: { year: 2023, month: 9, day: 3 },
+            end: { year: 2023, month: 9, day: 22 },
+          }}
           defaultValues={{
             // isForce: false,
             range: {
@@ -111,7 +116,10 @@ export default function Page() {
           // width={400}
           onValueChange={(value) => {}} 
           onRangeDateDiffDays={(dayCount) => {
-            console.log('@dayCount', dayCount);
+            // console.log('@dayCount', dayCount);
+          }}
+          onEscapeAllowSelectDates={(escapedDateInfo) => {
+            // console.log(`@escapedDateInfo`, escapedDateInfo);
           }}
           />
       </div>
@@ -157,6 +165,10 @@ export default function Page() {
           // isCalendarPickAutoClose={(params) => {
           //   return false;
           // }}
+          allowSelectDates={{
+            start: { year: 2023, month: 9, day: 3 },
+            end: { year: 2023, month: 9, day: 22 },
+          }}
           defaultValues={{
             // isForce: true,
             single: {
@@ -169,6 +181,9 @@ export default function Page() {
           }}
           // outputFormat="yyyy-MM-dd HH:00"
           onValueChange={(value) => {}} 
+          onEscapeAllowSelectDates={(escapedDateInfo) => {
+            console.log(`@escapedDateInfo`, escapedDateInfo);
+          }}
           />
       </div>
     </div>

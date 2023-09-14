@@ -29,8 +29,54 @@ export function DatePicker(props: IDatePicker.Props) {
 
     onValueChange,
     onRangeDateDiffDays,
+    onEscapeAllowSelectDates,
     width,
   } = props;
+  
+  const allowSelectDateStart = useMemo(() => {
+    if (allowSelectDates?.start?.year === undefined && allowSelectDates?.start?.month === undefined && allowSelectDates?.start?.day === undefined && allowSelectDates?.start?.hour === undefined && allowSelectDates?.start?.minute === undefined && allowSelectDates?.start?.second === undefined && allowSelectDates?.start?.millisecond === undefined) {
+      return undefined;
+    }
+
+    if (allowSelectDates?.start?.day === 'last-of-month') {
+      return DateTime.now()
+        .set({ year: allowSelectDates?.start?.year, month: allowSelectDates?.start?.month })
+        .endOf('month')
+        .set({ 
+          hour: allowSelectDates?.start?.hour ?? 0, 
+          minute: allowSelectDates?.start?.minute ?? 0, 
+          second: allowSelectDates?.start?.second ?? 0, 
+          millisecond: allowSelectDates?.start?.millisecond ?? 0,
+        })
+        .toJSDate()
+      ;
+    } else {
+      return DateTime.now().set({ year: allowSelectDates?.start?.year, month: allowSelectDates?.start?.month, day: allowSelectDates?.start?.day, hour: allowSelectDates?.start?.hour, minute: allowSelectDates?.start?.minute, second: allowSelectDates?.start?.second, millisecond: allowSelectDates?.start?.millisecond }).toJSDate();
+    }
+  }, [allowSelectDates?.start?.day, allowSelectDates?.start?.hour, allowSelectDates?.start?.millisecond, allowSelectDates?.start?.minute, allowSelectDates?.start?.month, allowSelectDates?.start?.second, allowSelectDates?.start?.year]);
+
+  const allowSelectDateEnd = useMemo(() => {
+    if (allowSelectDates?.end?.year === undefined && allowSelectDates?.end?.month === undefined && allowSelectDates?.end?.day === undefined && allowSelectDates?.end?.hour === undefined && allowSelectDates?.end?.minute === undefined && allowSelectDates?.end?.second === undefined && allowSelectDates?.end?.millisecond === undefined) {
+      return undefined;
+    }
+
+    if (allowSelectDates?.end?.day === 'last-of-month') {
+      return DateTime.now()
+        .set({ year: allowSelectDates?.end?.year, month: allowSelectDates?.end?.month })
+        .endOf('month')
+        .set({ 
+          hour: allowSelectDates?.end?.hour ?? 23, 
+          minute: allowSelectDates?.end?.minute ?? 59, 
+          second: allowSelectDates?.end?.second ?? 59, 
+          millisecond: allowSelectDates?.end?.millisecond ?? 999,
+        })
+        .toJSDate()
+      ;
+    } else {
+      return DateTime.now().set({ year: allowSelectDates?.end?.year, month: allowSelectDates?.end?.month, day: allowSelectDates?.end?.day, hour: allowSelectDates?.end?.hour, minute: allowSelectDates?.end?.minute, second: allowSelectDates?.end?.second, millisecond: allowSelectDates?.end?.millisecond }).toJSDate();
+    }
+  }, [allowSelectDates?.end?.day, allowSelectDates?.end?.hour, allowSelectDates?.end?.millisecond, allowSelectDates?.end?.minute, allowSelectDates?.end?.month, allowSelectDates?.end?.second, allowSelectDates?.end?.year]);
+
   const isApplyFullSizeWhenDisplayEscape = useMemo(() => props.isApplyFullSizeWhenDisplayEscape ?? false, [props.isApplyFullSizeWhenDisplayEscape]);
   const isCalendarPickAutoClose = useCallback((params: IDatePicker.CalendarPickAutoCloseParams) => {
     if (props.isCalendarPickAutoClose !== undefined) {
@@ -136,38 +182,38 @@ export function DatePicker(props: IDatePicker.Props) {
   }, [inputElement]);
 
   const isBlockDate = useCallback((date: Date) => {
-    if (allowSelectDates === undefined) return false;
+    if (allowSelectDateStart === undefined && allowSelectDateEnd === undefined) return false;
     
     let isPassStart = false;
-    if (allowSelectDates.startDate !== undefined) {
-      const allowSelectDatesStartLuxonObj = DateTime.fromJSDate(allowSelectDates.startDate).set({ hour: 0, minute: 0, second: 0, millisecond: 0 });
+    if (allowSelectDateStart !== undefined) {
+      const allowSelectDatesStartLuxonObj = DateTime.fromJSDate(allowSelectDateStart).set({ hour: 0, minute: 0, second: 0, millisecond: 0 });
       if (date.getTime() >= allowSelectDatesStartLuxonObj.toJSDate().getTime()) {
         isPassStart = true;
       }
     }
 
     let isPassEnd = false;
-    if (allowSelectDates.endDate !== undefined) {
-      const allowSelectDatesEndLuxonObj = DateTime.fromJSDate(allowSelectDates.endDate).set({ hour: 23, minute: 59, second: 59, millisecond: 999 });
+    if (allowSelectDateEnd !== undefined) {
+      const allowSelectDatesEndLuxonObj = DateTime.fromJSDate(allowSelectDateEnd).set({ hour: 23, minute: 59, second: 59, millisecond: 999 });
       if (date.getTime() <= allowSelectDatesEndLuxonObj.toJSDate().getTime()) {
         isPassEnd = true;
       }
     }
 
-    if (allowSelectDates.startDate !== undefined && allowSelectDates.endDate === undefined) {
+    if (allowSelectDateStart !== undefined && allowSelectDateEnd === undefined) {
       return !isPassStart;
     }
 
-    if (allowSelectDates.startDate === undefined && allowSelectDates.endDate !== undefined) {
+    if (allowSelectDateStart === undefined && allowSelectDateEnd !== undefined) {
       return !isPassEnd;
     }
 
-    if (allowSelectDates.startDate === undefined && allowSelectDates.endDate === undefined) {
+    if (allowSelectDateStart === undefined && allowSelectDateEnd === undefined) {
       return false;
     }
 
     return !(isPassStart && isPassEnd);
-  }, [allowSelectDates]);
+  }, [allowSelectDateEnd, allowSelectDateStart]);
 
   const isSelectedMonthDate = useCallback((date: Date) => {
     if (rangeType === 'single') {
@@ -919,6 +965,33 @@ export function DatePicker(props: IDatePicker.Props) {
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selectedRangeDate, rangeType, pickType, timeType, outputFormat, defaultValues]);
+
+  useEffect(() => {
+    if (allowSelectDateStart === undefined && allowSelectDateEnd === undefined) return;
+
+    if (rangeType === 'single' && selectedDate !== undefined) {
+      if (isBlockDate(selectedDate)) {
+        if (typeof onEscapeAllowSelectDates === 'function') {
+          onEscapeAllowSelectDates({ single: { date: selectedDate } });
+        }
+      }
+    }
+
+    if (rangeType === 'range' && selectedRangeDate !== undefined) {
+      const startDate = selectedRangeDate.start;
+      const endDate = selectedRangeDate.end;
+
+      const isStartDateBlocked = startDate !== undefined ? isBlockDate(startDate) : undefined;
+      const isEndDateBlocked = endDate !== undefined ? isBlockDate(endDate) : undefined;
+
+      if (isStartDateBlocked === true || isEndDateBlocked === true) {
+        if (typeof onEscapeAllowSelectDates === 'function') {
+          onEscapeAllowSelectDates({ range: { start: startDate, end: endDate } });
+        }
+      }
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [rangeType, selectedDate, selectedRangeDate, allowSelectDateStart, allowSelectDateEnd]);
 
   return (
     <>

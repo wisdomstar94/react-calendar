@@ -49,9 +49,19 @@ export declare namespace IDatePicker {
     end: Date | undefined;
   }
 
+  export interface DateValues {
+    year?: number;
+    month?: number;
+    day?: SingleDefaultDay;
+    hour?: number;
+    minute?: number;
+    second?: number;
+    millisecond?: number;
+  }
+
   export interface AllowSelectDates {
-    startDate?: Date;
-    endDate?: Date;
+    start?: DateValues;
+    end?: DateValues;
   }
 
   export type SingleDefaultDay = number | 'last-of-month';
@@ -84,6 +94,14 @@ export declare namespace IDatePicker {
     editType: EditType;
   }
 
+  export interface EscapedDateInfo {
+    single?: { date: Date };
+    range?: RangeDate;
+  }
+
+  export type RangeDateDiffDaysCallback = (dayCount: number | undefined) => void;
+  export type EscapeAllowSelectDatesCallback = (escapedDateInfo: EscapedDateInfo) => void;
+
   export interface Props {
     inputSelector?: InputSelector;
     pickType: PickType;
@@ -103,7 +121,8 @@ export declare namespace IDatePicker {
     setIsShow: Dispatch<SetStateAction<boolean>>;
 
     onValueChange: (value: string) => void;
-    onRangeDateDiffDays?: (dayCount: number | undefined) => void;
+    onRangeDateDiffDays?: RangeDateDiffDaysCallback;
+    onEscapeAllowSelectDates?: EscapeAllowSelectDatesCallback;
     
     outputFormat?: string;
     

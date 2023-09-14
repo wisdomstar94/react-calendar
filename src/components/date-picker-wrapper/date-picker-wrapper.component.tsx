@@ -19,6 +19,7 @@ export function DatePickerWrapper(props: IDatePickerWrapper.Props) {
     outputFormat,
     onValueChange,
     onRangeDateDiffDays,
+    onEscapeAllowSelectDates,
     isApplyFullSizeWhenDisplayEscape,
     isCalendarPickAutoClose,
   } = props;
@@ -64,6 +65,7 @@ export function DatePickerWrapper(props: IDatePickerWrapper.Props) {
         onRangeDateDiffDays={(dayCount) => {
           if (typeof onRangeDateDiffDays === 'function') onRangeDateDiffDays(dayCount);
         }}
+        onEscapeAllowSelectDates={onEscapeAllowSelectDates}
         width={width}
         />
     </>
