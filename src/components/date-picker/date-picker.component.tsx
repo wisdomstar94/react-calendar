@@ -51,7 +51,15 @@ export function DatePicker(props: IDatePicker.Props) {
         .toJSDate()
       ;
     } else {
-      return DateTime.now().set({ year: allowSelectDates?.start?.year, month: allowSelectDates?.start?.month, day: allowSelectDates?.start?.day, hour: allowSelectDates?.start?.hour, minute: allowSelectDates?.start?.minute, second: allowSelectDates?.start?.second, millisecond: allowSelectDates?.start?.millisecond }).toJSDate();
+      return DateTime.now().set({ 
+        year: allowSelectDates?.start?.year, 
+        month: allowSelectDates?.start?.month, 
+        day: allowSelectDates?.start?.day, 
+        hour: allowSelectDates?.start?.hour ?? 0, 
+        minute: allowSelectDates?.start?.minute ?? 0, 
+        second: allowSelectDates?.start?.second ?? 0, 
+        millisecond: allowSelectDates?.start?.millisecond ?? 0, 
+      }).toJSDate();
     }
   }, [allowSelectDates?.start?.day, allowSelectDates?.start?.hour, allowSelectDates?.start?.millisecond, allowSelectDates?.start?.minute, allowSelectDates?.start?.month, allowSelectDates?.start?.second, allowSelectDates?.start?.year]);
 
@@ -73,7 +81,15 @@ export function DatePicker(props: IDatePicker.Props) {
         .toJSDate()
       ;
     } else {
-      return DateTime.now().set({ year: allowSelectDates?.end?.year, month: allowSelectDates?.end?.month, day: allowSelectDates?.end?.day, hour: allowSelectDates?.end?.hour, minute: allowSelectDates?.end?.minute, second: allowSelectDates?.end?.second, millisecond: allowSelectDates?.end?.millisecond }).toJSDate();
+      return DateTime.now().set({ 
+        year: allowSelectDates?.end?.year, 
+        month: allowSelectDates?.end?.month, 
+        day: allowSelectDates?.end?.day, 
+        hour: allowSelectDates?.end?.hour ?? 23, 
+        minute: allowSelectDates?.end?.minute ?? 59, 
+        second: allowSelectDates?.end?.second ?? 59, 
+        millisecond: allowSelectDates?.end?.millisecond ?? 999, 
+      }).toJSDate();
     }
   }, [allowSelectDates?.end?.day, allowSelectDates?.end?.hour, allowSelectDates?.end?.millisecond, allowSelectDates?.end?.minute, allowSelectDates?.end?.month, allowSelectDates?.end?.second, allowSelectDates?.end?.year]);
 
@@ -485,7 +501,13 @@ export function DatePicker(props: IDatePicker.Props) {
     if (typeof setSelectedDate === 'function') setSelectedDate(prev => applyDate); 
   }, [defaultValues?.single, getApplyDefaultValuesInfo, setSelectedDate]);
 
-  const setSelectedRangeDateProxy = useCallback((rangeDate: IDatePicker.RangeDate | undefined) => {
+  const setSelectedRangeDateProxy = useCallback((rangeDate: IDatePicker.RangeDate | undefined, editedRangeTarget?: IDatePicker.RangeDateControlTarget) => {
+    let thisRangeDateControlTarget = rangeDateControlTarget;
+    if (editedRangeTarget !== undefined) {
+      thisRangeDateControlTarget = editedRangeTarget;
+      setRangeDateControlTarget(editedRangeTarget);
+    }
+
     if (typeof rangeDate === undefined) {
       if (typeof setSelectedRangeDate === 'function') {
         setSelectedRangeDate(prev => undefined); 
@@ -507,8 +529,17 @@ export function DatePicker(props: IDatePicker.Props) {
       endDate = endInfo.afterDefaultValueDate;
     }
 
-    if (typeof setSelectedRangeDate === 'function') setSelectedRangeDate(prev => ({ start: startDate, end: endDate }));
-  }, [defaultValues?.range?.end, defaultValues?.range?.start, getApplyDefaultValuesInfo, setSelectedRangeDate]);
+    const newRangeDate: IDatePicker.RangeDate = {
+      start: startDate, end: endDate
+    };
+
+    if (typeof setSelectedRangeDate === 'function') setSelectedRangeDate(prev => newRangeDate);
+    if (thisRangeDateControlTarget === 'start' && newRangeDate.start !== undefined) {
+      setCurrentCalendarInfo(calendar.getDayCalendarInfo(newRangeDate.start, newRangeDate));
+    } else if (thisRangeDateControlTarget === 'end' && newRangeDate.end !== undefined) {
+      setCurrentCalendarInfo(calendar.getDayCalendarInfo(newRangeDate.end, newRangeDate));
+    }
+  }, [calendar, defaultValues?.range?.end, defaultValues?.range?.start, getApplyDefaultValuesInfo, rangeDateControlTarget, setSelectedRangeDate]);
 
   function getApplyForceDefaultValue(
     selectedDate: Date | undefined,
@@ -671,83 +702,131 @@ export function DatePicker(props: IDatePicker.Props) {
     },
   });
 
+  const getConvertInfo = useCallback((_value: string) => {
+    let isValid: boolean = false;
+    let date: Date | undefined = undefined;
+
+    let myValue = _value;
+    if (pickType === 'time') {
+      const parsingTimeType = parsingTimeString(myValue);
+      switch(parsingTimeType) {
+        case 'HH': myValue += ':00:00'; break;
+        case 'HH:mm': myValue += ':00'; break;
+      }
+      myValue = `2023-09-09 ` + myValue;
+    } else if (pickType === 'month') {
+      const myValueSplit = myValue.split(' ');
+      const firstString = myValueSplit[0];
+      if (firstString.length === 7) {
+        myValue += '-01';
+      }
+    }
+    const luxonObj = DateTime.fromSQL(myValue);
+    isValid = luxonObj.isValid;
+    if (isValid) {
+      date = luxonObj.toJSDate();
+    }
+
+    const allowSelectDateCheck = () => {
+      if (date === undefined) return undefined;
+      if (allowSelectDateStart === undefined && allowSelectDateEnd === undefined) return undefined;
+      
+      let isPassStart = true;
+      let isPassEnd = true;
+
+      if (allowSelectDateStart !== undefined) {
+        isPassStart = allowSelectDateStart.getTime() <= date.getTime();
+      }
+
+      if (allowSelectDateEnd !== undefined) {
+        isPassEnd = allowSelectDateEnd.getTime() >= date.getTime();
+      }
+
+      const isValid = isPassStart && isPassEnd;
+      const newDate = isValid ? date : undefined;
+      return {
+        isValid,
+        date: newDate,
+      };
+    };
+    const allowSelectDateCheckInfo = allowSelectDateCheck();
+    if (allowSelectDateCheckInfo !== undefined) {
+      isValid = allowSelectDateCheckInfo.isValid;
+      date = allowSelectDateCheckInfo.date;
+    }
+
+    return {
+      isValid,
+      date,
+    };  
+  }, [allowSelectDateEnd, allowSelectDateStart, pickType]);
+
+  const getEditedRangeTarget = useCallback((currentValue: string): IDatePicker.RangeDateControlTarget | undefined => {
+    const prevValueSplit = prevValue.current.split(rangeDivideString);
+    const prevStartString = prevValueSplit[0];
+    const prevEndString = prevValueSplit[1];
+
+    const currentValueSplit = currentValue.split(rangeDivideString);
+    const currentStartString = currentValueSplit[0];
+    const currentEndString = currentValueSplit[1];
+
+    if (prevStartString !== currentStartString) {
+      return 'start';
+    }
+
+    if (prevEndString !== currentEndString) {
+      return 'end'
+    }
+
+    return undefined;
+  }, [rangeDivideString]);
+
   const inputKeyupCallback = useCallback((event: KeyboardEvent) => {
     latestTypingDate.current = new Date();
-    let value = (event.target as any)?.value;
+    const value = (event.target as any)?.value;
 
     if (typeof value !== 'string') { prevValue.current = value; return; }
     if (prevValue.current === value) return;
-
-    const getConvertInfo = (_value: string) => {
-      let isValid: boolean = false;
-      let date: Date | undefined = undefined;
-
-      let myValue = _value;
-      if (pickType === 'time') {
-        const parsingTimeType = parsingTimeString(myValue);
-        switch(parsingTimeType) {
-          case 'HH': myValue += ':00:00'; break;
-          case 'HH:mm': myValue += ':00'; break;
-        }
-        myValue = `2023-09-09 ` + myValue;
-      } else if (pickType === 'month') {
-        const myValueSplit = myValue.split(' ');
-        const firstString = myValueSplit[0];
-        if (firstString.length === 7) {
-          myValue += '-01';
-        }
-      }
-      const luxonObj = DateTime.fromSQL(myValue);
-      isValid = luxonObj.isValid;
-      if (isValid) {
-        date = luxonObj.toJSDate();
-      }
-
-      return {
-        isValid,
-        date,
-      };  
-    };
 
     if (rangeType === 'single') {
       const convertInfo = getConvertInfo(value);
       setSelectedDateProxy(convertInfo.date);
       prevValue.current = value;
     }
-    
-    const disposeRange = () => {
-      const valueSplit = value.split(rangeDivideString);
-      if (valueSplit.length === 2) {
-        const startValue = valueSplit[0].trim();
-        const endValue = valueSplit[1].trim();
-
-        const startValueConvertInfo = getConvertInfo(startValue);
-        const endValueConvertInfo = getConvertInfo(endValue);
-
-        let startDate = startValueConvertInfo.date;
-        let endDate = endValueConvertInfo.date;
-
-        const rangeDate: IDatePicker.RangeDate = {
-          start: startDate,
-          end: endDate,
-        };
-
-        if (rangeDate.start !== undefined && rangeDate.end !== undefined) {
-          if (rangeDate.start.getTime() > rangeDate.end.getTime()) {
-            rangeDate.start = rangeDate.end;
-            if (typeof onValueChange === 'function') onValueChange(getRangeInputValue(rangeDate));
-          }
-        }
-
-        setSelectedRangeDateProxy(rangeDate);
-      }
-    };
 
     if (rangeType === 'range') {
+      const disposeRange = () => {
+        const valueSplit = value.split(rangeDivideString);
+        if (valueSplit.length === 2) {
+          const startValue = valueSplit[0].trim();
+          const endValue = valueSplit[1].trim();
+  
+          const startValueConvertInfo = getConvertInfo(startValue);
+          const endValueConvertInfo = getConvertInfo(endValue);
+  
+          let startDate = startValueConvertInfo.date;
+          let endDate = endValueConvertInfo.date;
+  
+          const rangeDate: IDatePicker.RangeDate = {
+            start: startDate,
+            end: endDate,
+          };
+  
+          if (rangeDate.start !== undefined && rangeDate.end !== undefined) {
+            if (rangeDate.start.getTime() > rangeDate.end.getTime()) {
+              rangeDate.start = rangeDate.end;
+              if (typeof onValueChange === 'function') onValueChange(getRangeInputValue(rangeDate));
+            }
+          }
+
+          const editedRangeTarget = getEditedRangeTarget(value);
+          setSelectedRangeDateProxy(rangeDate, editedRangeTarget);
+        }
+      };
       disposeRange();
       prevValue.current = value;
     }
-  }, [getRangeInputValue, onValueChange, pickType, rangeDivideString, rangeType, setSelectedDateProxy, setSelectedRangeDateProxy]);
+  }, [getConvertInfo, getEditedRangeTarget, getRangeInputValue, onValueChange, rangeDivideString, rangeType, setSelectedDateProxy, setSelectedRangeDateProxy]);
 
   useAddEventListener({
     domEventRequiredInfo: {
